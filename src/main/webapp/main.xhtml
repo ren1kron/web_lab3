@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+<h:head>
+    <title>Point hit. Web lab 3</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <h:outputStylesheet library="webjars" name="primeflex/3.3.1/primeflex.min.css" />
+<!--    <h:outputStylesheet library="styles" name="./css/styles.css"/>-->
+    <link rel="stylesheet" href="css/styles.css" />
+<!--    <h:outputScript name="js/fetch.js" target="head"/>-->
+</h:head>
+
+<h:body>
+
+    <!--TODO сделать хоть какой-то коммит-->
+    <!--TODO прописать бины (разные, в тз требуют "набор")-->
+    <!--TODO разобраться, как центрировать блядские кнопки-->
+
+    <h:panelGroup layout="block" styleClass="header-container">
+        <h1 class="header-title">Лабораторная работа <span class="pink-header">№ 3</span></h1>
+        <h1>Дисциплина: <span class="pink-header">Веб-программирование</span></h1>
+        <h2 class="author-info">
+            ФИО: <span class="pink-header">Пронкин Алексей Дмитриевич</span>,
+            Группа: <span class="pink-header">P3208</span>,
+            Вариант: <span class="pink-header">32782</span>
+        </h2>
+        <p:button value="Вернуться на домашнюю страницу" outcome="index.xhtml" />
+    </h:panelGroup>
+    <h:panelGroup layout="block" styleClass="flex align-items-center">
+        <p:button value="Вернуться на домашнюю страницу" outcome="index.xhtml"  />
+    </h:panelGroup>
+    <h:form id="data-form" styleClass="p-fluid">
+        <div class="grid">
+            <!-- Выбор X -->
+            <div class="col-12 md:col-4">
+                <p:outputLabel for="x" value="Выберите X:" />
+                <p:selectCheckboxMenu id="x" value="#{inputBean.xValues}" label="Выберите значения">
+                    <f:selectItems value="#{inputBean.allXValues}" />
+                </p:selectCheckboxMenu>
+                <p:message for="x" />
+            </div>
+
+            <!-- Ввод Y -->
+            <div class="col-12 md:col-4">
+                <p:outputLabel for="y" value="Введите Y:" />
+                <p:inputText id="y" value="#{inputBean.y}" required="true" maxlength="6" />
+                <p:message for="y" />
+            </div>
+
+            <!-- Выбор R -->
+            <div class="col-12 md:col-4">
+                <p:outputLabel for="r" value="Выберите R:" />
+                <p:selectOneRadio id="r" value="#{inputBean.r}">
+                    <f:selectItems value="#{inputBean.rValues}" />
+                </p:selectOneRadio>
+                <p:message for="r" />
+            </div>
+
+            <!-- Кнопка отправки -->
+            <div class="col-12">
+                <p:commandButton value="Отправить" action="#{inputBean.submit}" update="result-table graph" styleClass="p-button-success p-mt-3" />
+            </div>
+        </div>
+    </h:form>
+
+</h:body>
+
+</html>
+
+

@@ -1,0 +1,79 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Скрываем полосы прокрутки */
+
+}
+
+/* START BACKGROUND STYLING*/
+
+#animation-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: whitesmoke; /* Цвет фона, по желанию */
+    z-index: 0; /* Фон под контентом */
+}
+
+#bouncing-image {
+    position: absolute;
+    width: 150px; /* Размер изображения */
+    height: auto;
+}
+#content {
+    position: relative;
+    z-index: 1; /* Размещаем контент поверх фона */
+    /* Дополнительные стили */
+    text-align: center;
+}
+
+/* END BACKGROUND STYLING*/
+
+/* START BUTTON STYLING*/
+
+button {
+    background-color: rgba(19, 33, 40, 0.9); /* Цвет фона */
+    color: white; /* Цвет текста */
+    padding: 10px 20px; /* Отступы */
+    font-size: 16px; /* Размер шрифта */
+    border: none; /* Убрать границу */
+    border-radius: 5px; /* Закруглённые углы */
+    cursor: pointer; /* Иконка курсора при наведении */
+    box-shadow: 1px 4px 6px rgba(0, 0, 0, 0.2); /* Тень */
+    transition: background-color 0.3s ease; /* Плавный переход */
+}
+
+button:hover {
+    background-color: #e31043; /* Цвет при наведении */
+}
+
+button:active {
+    background-color: #871c3a; /* Цвет при клике */
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2); /* Тень при клике */
+}
+
+button:disabled {
+    background-color: #cccccc; /* Цвет для отключённой кнопки */
+    cursor: not-allowed; /* Иконка при отключении */
+}
+
+/* END BUTTON STYLING */
+
+/* START STYLING TEXT */
+table {
+    table-layout: fixed;
+}
+h3 {
+    font-size: 20px; /* Размер шрифта */
+    font-family: 'Arial Black', sans-serif; /* Шрифт */
+    background-color: #122028;
+}
+.miss {
+    color: red;
+}
+.hit {
+    color: #00ff2a;
+}
+
