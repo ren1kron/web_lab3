@@ -7,6 +7,7 @@
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:f="http://xmlns.jcp.org/jsf/core">
 <h:head>
+<!--      xmlns:ace="http://icefaces.org/tld/core"-->
     <title>Point hit. Web lab 3</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <h:outputStylesheet library="webjars" name="primeflex/3.3.1/primeflex.min.css" />
@@ -17,10 +18,10 @@
 
 <h:body>
 
-    <!--TODO сделать хоть какой-то коммит-->
-    <!--TODO прописать бины (разные, в тз требуют "набор")-->
-    <!--TODO разобраться, как центрировать блядские кнопки-->
 
+
+
+    <!-- Header -->
     <h:panelGroup layout="block" styleClass="header-container">
         <h1 class="header-title">Лабораторная работа <span class="pink-header">№ 3</span></h1>
         <h1>Дисциплина: <span class="pink-header">Веб-программирование</span></h1>
@@ -29,44 +30,106 @@
             Группа: <span class="pink-header">P3208</span>,
             Вариант: <span class="pink-header">32782</span>
         </h2>
-        <p:button value="Вернуться на домашнюю страницу" outcome="index.xhtml" />
+<!--        <p:button value="Вернуться на домашнюю страницу" outcome="index.xhtml" />-->
     </h:panelGroup>
-    <h:panelGroup layout="block" styleClass="flex align-items-center">
-        <p:button value="Вернуться на домашнюю страницу" outcome="index.xhtml"  />
-    </h:panelGroup>
-    <h:form id="data-form" styleClass="p-fluid">
-        <div class="grid">
-            <!-- Выбор X -->
-            <div class="col-12 md:col-4">
-                <p:outputLabel for="x" value="Выберите X:" />
-                <p:selectCheckboxMenu id="x" value="#{inputBean.xValues}" label="Выберите значения">
-                    <f:selectItems value="#{inputBean.allXValues}" />
-                </p:selectCheckboxMenu>
-                <p:message for="x" />
-            </div>
 
-            <!-- Ввод Y -->
-            <div class="col-12 md:col-4">
-                <p:outputLabel for="y" value="Введите Y:" />
-                <p:inputText id="y" value="#{inputBean.y}" required="true" maxlength="6" />
-                <p:message for="y" />
-            </div>
 
-            <!-- Выбор R -->
-            <div class="col-12 md:col-4">
-                <p:outputLabel for="r" value="Выберите R:" />
-                <p:selectOneRadio id="r" value="#{inputBean.r}">
-                    <f:selectItems value="#{inputBean.rValues}" />
-                </p:selectOneRadio>
-                <p:message for="r" />
-            </div>
+    <!-- main panel -->
+<!--    <h:panelGrid layout="block" styleClass="flex align-items-center">-->
+<!--        <p:button value="Вернуться на домашнюю страницу" outcome="index.xhtml"  />-->
+<!--    </h:panelGrid>-->
+    <h:form id="data-form">
+        <p:panel>
+<!--            <p:panel columns="2" cellpadding="5">-->
 
-            <!-- Кнопка отправки -->
-            <div class="col-12">
-                <p:commandButton value="Отправить" action="#{inputBean.submit}" update="result-table graph" styleClass="p-button-success p-mt-3" />
-            </div>
-        </div>
+                <!-- Поле X: selectOneRadio -->
+<!--                <h:outputLabel for="x" value="X:" />-->
+                <h6>X: </h6>
+                <h:panelGrid>
+                    <p:selectOneRadio id="x" value="#{formBean.x}">
+                        <f:selectItem itemLabel="-5" itemValue="-5" />
+                        <f:selectItem itemLabel="-4" itemValue="-4" />
+                        <f:selectItem itemLabel="-3" itemValue="-3" />
+                        <f:selectItem itemLabel="-2" itemValue="-2" />
+                        <f:selectItem itemLabel="-1" itemValue="-1" />
+                        <f:selectItem itemLabel="0" itemValue="0" />
+                        <f:selectItem itemLabel="1" itemValue="1" />
+                        <f:selectItem itemLabel="2" itemValue="2" />
+                        <f:selectItem itemLabel="3" itemValue="3" />
+                    </p:selectOneRadio>
+                </h:panelGrid>
+
+                <!-- Поле Y: inputText -->
+<!--                <h:outputLabel for="y" value="Y:" />-->
+                <h6>Y: </h6>
+                <p:panelGrid>
+                    <p:inputText id="y" value="#{formBean.y}" label="Y" required="true" />
+                </p:panelGrid>
+<!--                    <f:validateRegex pattern="^-?\d+(\.\d+)?$"-->
+<!--                                     message="Y должно быть числом." />-->
+<!--                </p:inputText>-->
+
+<!--                &lt;!&ndash; Поле Y: inputText &ndash;&gt;-->
+<!--                <h:outputLabel for="y" value="Y:" />-->
+<!--                <h:inputText id="y" value="#{formBean.y}" label="Y" required="true">-->
+<!--                    <f:validateRegex pattern="^-?\d+(\.\d+)?$"-->
+<!--                                     message="Y должно быть числом." />-->
+<!--                </h:inputText>-->
+
+                <!-- Поле R: p:slider -->
+<!--                <h:outputLabel for="r" value="R:" />-->
+<!--                <p:slider id="r" value="#{formBean.r}" min="2" max="5" step="1"-->
+<!--                          style="width:300px;">-->
+<!--                    <p:ajax event="slideEnd" update="rValue" />-->
+<!--                </p:slider>-->
+
+
+<!--                <p:inputText id="txt" value="#{formBean.r}" style="width:300px;"/>-->
+<!--                <h:outputLabel for="r" value="R:" />-->
+                <h6>R: </h6>
+                <h:outputText id="r-output" value="#{formBean.r}"/>
+                <h:inputHidden id="r" value="#{formBean.r}"/>
+                <p:slider for="r" display="r-output" minValue="2" maxValue="5" step="0.25" range="false" style="width:200px;"/>
+<!--            </p:panel>-->
+
+            <!-- Кнопка отправки формы -->
+            <p:commandButton value="Отправить" action="#{formBean.submit}" update="messages result-table" />
+
+            <!-- Сообщения -->
+            <p:messages id="messages" showDetail="true" autoUpdate="true" />
+        </p:panel>
     </h:form>
+
+    <p:panel>
+        <p:button value="Вернуться на домашнюю страницу" outcome="index.xhtml" />
+    </p:panel>
+
+    <p:dataTable id="result-table" value="#{resultsBean.points}" var="point"
+                 paginator="true" rows="10"
+                 style="margin-top:20px">
+
+        <p:column headerText="X">
+            <h:outputText value="#{point.x}" />
+        </p:column>
+
+        <p:column headerText="Y">
+            <h:outputText value="#{point.y}" />
+        </p:column>
+
+        <p:column headerText="R">
+            <h:outputText value="#{point.r}" />
+        </p:column>
+
+        <p:column headerText="Попадание">
+            <h:outputText value="#{point.hit ? 'Да' : 'Нет'}" />
+        </p:column>
+
+        <p:column headerText="Время">
+            <h:outputText value="#{point.hitTime}" />
+        </p:column>
+
+    </p:dataTable>
+
 
 </h:body>
 

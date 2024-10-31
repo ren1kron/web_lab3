@@ -28,7 +28,7 @@
     <!-- set theme -->
     <context-param>
         <param-name>primefaces.THEME</param-name>
-        <param-value>luna-blue</param-value> <!-- Замените 'bootstrap' на название вашей темы -->
+        <param-value>luna-blue</param-value>
     </context-param>
 
 
