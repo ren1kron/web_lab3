@@ -1,5 +1,6 @@
 package org.ren1kron.beans;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
@@ -24,11 +25,21 @@ public class FormBean implements Serializable {
 
     private float x;
     private float y;
-    private float r = 2; // Значение по умолчанию
+    private float r;
 
     private List<Point> points = new ArrayList<>();
 
-    // Метод обработки отправки формы
+    @PostConstruct
+    public void init() {
+        x = 0;
+        y = 0;
+        r = 2;
+
+    }
+
+    /**
+     * Method for submitting form
+     */
     public String submit() {
 
         Point point = new Point(x, y, r);
@@ -42,4 +53,7 @@ public class FormBean implements Serializable {
 
         return null; // Остаемся на той же странице
     }
+
+
+
 }

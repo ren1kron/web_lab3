@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+
+    <session-factory>
+
+        <!-- Database connection settings -->
+        <property name="connection.driver_class">org.postgresql.Driver</property>
+        <property name="connection.url">jdbc:postgresql://localhost:5432/web_lab3</property>
+        <property name="connection.username">ren1kron</property>
+        <property name="connection.password">ren1kron</property>
+
+        <!-- SQL dialect -->
+        <property name="dialect">org.hibernate.dialect.PostgreSQLDialect</property>
+
+        <!-- Echo all executed SQL to stdout -->
+        <property name="show_sql">true</property>
+
+        <!-- Format SQL -->
+        <property name="format_sql">true</property>
+
+        <!-- Automatically generate schema -->
+        <!-- Options: validate | update | create | create-drop | none -->
+        <property name="hbm2ddl.auto">update</property>
+
+        <!-- Names the annotated entity classes -->
+        <mapping class="org.ren1kron.models.Point"/>
+
+    </session-factory>
+
+</hibernate-configuration>
