@@ -83,7 +83,13 @@
         <!--            </p:panel>-->
 
                     <!-- Кнопка отправки формы -->
-                    <p:commandButton value="Отправить" action="#{formBean.submit()}" update="messages result-table" />
+                    <p:commandButton class="round confirm-colors material-icons"
+                                     id="btn_cfrm" value="Отправить" action="#{formBean.submit()}" ajax="false"/>
+
+                    <!-- Кнопка очистки таблицы -->
+                    <p:commandButton class="round reset-colors material-icons"
+                                     id="btn_rst" value="Очистить" action="#{formBean.clear()}" ajax="true"
+                                     update="result-table graph-container"/>
 
                     <!-- Сообщения -->
                     <p:messages id="messages" showDetail="true" autoUpdate="true" />
@@ -96,7 +102,8 @@
                 </h:form>
             </p:splitterPanel>
             <!-- Graph -->
-            <p:splitterPanel id="svgContainer" styleClass="flex align-items-center justify-content-center">
+            <p:splitterPanel styleClass="flex align-items-center justify-content-center">
+                <h:panelGroup id="graph-container">
                 <svg xmlns="http://www.w3.org/2000/svg" id="svg" width="500" height="500">
                     <!--        <svg id="svg" width="500" height="500">-->
                     <polygon id="triangle"
@@ -184,8 +191,16 @@
                     <!-- Pointer -->
                     <circle id="pointer" r="2.5" cx="250" cy="250" fill-opacity="0.9" fill="blue" stroke="darkblue"/>
 
-
+                    <!-- Динамическая отрисовка точек -->
+                    <ui:repeat value="#{formBean.points}" var="point">
+                        <circle cx="#{250 + point.x * 40}"
+                                cy="#{250 - point.y * 40}"
+                                r="2.5"
+                                fill="#{point.hit ? 'green' : 'red'}"
+                                stroke="darkgreen"/>
+                    </ui:repeat>
                 </svg>
+                </h:panelGroup>
             </p:splitterPanel>
         </p:splitter>
     </div>
@@ -225,12 +240,12 @@
     </p:dataTable>
 
 
-    <script type="text/javascript" src="js/fetch.js"/>
-    <ui:repeat value="#{formBean.points}" var="point">
-        <script type="text/javascript">
-            drawPoint(${point.x}, ${point.y},${point.hit});
-        </script>
-    </ui:repeat>
+<!--    <script type="text/javascript" src="js/fetch.js"/>-->
+<!--    <ui:repeat value="#{formBean.points}" var="point">-->
+<!--        <script type="text/javascript">-->
+<!--            drawPoint(${point.x}, ${point.y},${point.hit});-->
+<!--        </script>-->
+<!--    </ui:repeat>-->
 
 </h:body>
 
