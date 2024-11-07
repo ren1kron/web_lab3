@@ -15,8 +15,31 @@
 
 <!--</h:panelGroup>-->
 <h:body>
+    <h:head>
+        <title>Point hit. Web lab 3</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <h:outputStylesheet library="webjars" name="primeflex/3.3.1/primeflex.min.css" />
+        <h:outputStylesheet name="primeicons/primeicons.css" library="primefaces" />
+        <!--    <h:outputStylesheet library="styles" name="./css/styles.css"/>-->
+        <link rel="stylesheet" href="css/styles.css" />
+    </h:head>
 
-    <p:button value="Начать игру" outcome="main.xhtml" styleClass="align-items-center" />
+    <!-- Header -->
+    <h:panelGroup layout="block" styleClass="header-container">
+        <h1 class="header-title">Лабораторная работа <span class="pink-header">№ 3</span></h1>
+        <h1>Дисциплина: <span class="pink-header">Веб-программирование</span></h1>
+        <h2 class="author-info">
+            ФИО: <span class="pink-header">Пронкин Алексей Дмитриевич</span>,
+            Группа: <span class="pink-header">P3208</span>,
+            Вариант: <span class="pink-header">32782</span>
+        </h2>
+    </h:panelGroup>
+
+    <div class="flex align-items-center justify-content-center" style="height: 100vh;">
+        <p:button value="Начать игру"
+                  outcome="main.xhtml"
+                  styleClass="text-4xl px-6 py-4" />
+    </div>
 
 
 </h:body>

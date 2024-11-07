@@ -9,16 +9,12 @@ import org.ren1kron.models.Point;
 import java.io.Serializable;
 import java.util.List;
 
-@Named("resultsBean")
+@Named("graphBean")
 @RequestScoped
 @Getter
-public class ResultsBean implements Serializable {
+public class GraphFormBean implements Serializable {
     private static final long serialVersionUID = 2L;
 
-    @Inject
-    private FormBean formBean;
 
-    public List<Point> getPoints() {
-        return formBean.getPoints();
-    }
+
 }

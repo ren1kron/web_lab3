@@ -36,4 +36,13 @@
         <welcome-file>index.xhtml</welcome-file>
     </welcome-file-list>
 
+
+
+<!--    Debug param-->
+    <context-param>
+        <param-name>org.primefaces.DEBUG</param-name>
+        <param-value>true</param-value>
+    </context-param>
+
+
 </web-app>

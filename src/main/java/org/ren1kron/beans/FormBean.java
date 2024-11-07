@@ -23,7 +23,6 @@ import java.util.List;
 public class FormBean implements Serializable {
     private static final long serialVersionUID = 12L;
 
-
     private float x;
     private float y;
     private float r;

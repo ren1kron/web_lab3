@@ -60,14 +60,17 @@
                             <f:selectItem itemLabel="1" itemValue="#{1}" />
                             <f:selectItem itemLabel="2" itemValue="#{2}" />
                             <f:selectItem itemLabel="3" itemValue="#{3}" />
+                            <p:ajax update="graph-container" process="@this x" />
                         </p:selectOneRadio>
                     </h:panelGrid>
 
                     <!-- Поле Y: inputText -->
                     <div class="field col-12 md:col-4">
-                        <p:outputLabel for="y" value="Y: "/>
-                        <p:inputText id="y" value="#{formBean.y}"  required="true" requiredMessage="Y is required">
-                                <p:keyFilter mask="num" />
+<!--                        <p:outputLabel for="y" value="Y: "/>-->
+                        <h6>Y: </h6>
+                        <p:inputText id="y" placeholder="(-3 ... 5)" value="#{formBean.y}" required="true" requiredMessage="Y is required" validatorMessage="Y must be in [-3; 5]">
+                            <f:validateDoubleRange minimum="-3" maximum="5"/>
+                            <p:ajax event="input" update="graph-container" process="@this y" />
                         </p:inputText>
                     </div>
 
@@ -79,20 +82,24 @@
                         <f:convertNumber pattern="#0.00"/>
                     </h:outputText>
                     <h:inputHidden id="r" value="#{formBean.r}"/>
-                    <p:slider for="r" display="r-output" minValue="2" maxValue="5" step="0.25" range="false" style="width:200px;" widgetVar="rSliderWidget" onSlideEnd="handleSlideR(event)" onSlide="handleSlideR(event)"/>
+                    <p:slider for="r" display="r-output" minValue="2" maxValue="5" step="0.25" range="false" style="width:200px;" widgetVar="rSliderWidget" >
+                        <p:ajax event="slideEnd" update="graph-container" process="@this r" />
+                    </p:slider>
         <!--            </p:panel>-->
 
                     <!-- Кнопка отправки формы -->
-                    <p:commandButton class="round confirm-colors material-icons"
-                                     id="btn_cfrm" value="Отправить" action="#{formBean.submit()}" ajax="false"/>
+                    <p:commandButton icon="pi pi-check"
+                                     id="btn_cfrm" value="Отправить" action="#{formBean.submit()}" ajax="true"
+                                     update="data-form result-table graph-container"
+                                     />
 
                     <!-- Кнопка очистки таблицы -->
-                    <p:commandButton class="round reset-colors material-icons"
+                    <p:commandButton icon="pi pi-trash"
                                      id="btn_rst" value="Очистить" action="#{formBean.clear()}" ajax="true"
-                                     update="result-table graph-container"/>
+                                     update="data-form result-table graph-container"/>
 
                     <!-- Сообщения -->
-                    <p:messages id="messages" showDetail="true" autoUpdate="true" />
+                    <p:messages id="messages" showDetail="false" autoUpdate="true" />
                 </h:form>
                 <h:form id="hidden-form">
                     <h:inputHidden value="#{formBean.x}" id="graph-x"/>
@@ -188,17 +195,18 @@
                     <polygon points="250,0 255,5 245, 5" fill="#000720" stroke="#000720"/>
                     <polygon points="500, 250 495,245 495,255" fill="#000720" stroke="#000720"/>
 
-                    <!-- Pointer -->
-                    <circle id="pointer" r="2.5" cx="250" cy="250" fill-opacity="0.9" fill="blue" stroke="darkblue"/>
-
                     <!-- Динамическая отрисовка точек -->
                     <ui:repeat value="#{formBean.points}" var="point">
                         <circle cx="#{250 + point.x * 40}"
                                 cy="#{250 - point.y * 40}"
                                 r="2.5"
-                                fill="#{point.hit ? 'green' : 'red'}"
-                                stroke="darkgreen"/>
+                                fill="${point.hit ? '#11FF00FF' : 'red'}"
+                        fill-opacity="0.9"
+                        stroke="${point.hit ? 'green' : 'firebrick'}"/>
                     </ui:repeat>
+
+                    <!-- Pointer -->
+                    <circle id="pointer" r="2.5" cx="#{250 + formBean.x * 40}" cy="#{250 - formBean.y * 40}" fill-opacity="0.9" fill="blue" stroke="darkblue"/>
                 </svg>
                 </h:panelGroup>
             </p:splitterPanel>
@@ -240,12 +248,7 @@
     </p:dataTable>
 
 
-<!--    <script type="text/javascript" src="js/fetch.js"/>-->
-<!--    <ui:repeat value="#{formBean.points}" var="point">-->
-<!--        <script type="text/javascript">-->
-<!--            drawPoint(${point.x}, ${point.y},${point.hit});-->
-<!--        </script>-->
-<!--    </ui:repeat>-->
+
 
 </h:body>
 

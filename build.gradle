@@ -26,10 +26,12 @@ dependencies {
     implementation 'org.primefaces:primefaces:14.0.6:jakarta'
         // PrimeFaces Themes
         implementation 'org.primefaces.themes:all-themes:1.1.0'
-    // PrimeFlex
-    implementation 'org.webjars.npm:primeflex:3.3.1'
-    // PrimeIcons
-    implementation 'org.webjars.npm:primeicons:7.0.0'
+        // PrimeFlex
+        implementation 'org.webjars.npm:primeflex:3.3.1'
+        // PrimeIcons
+        implementation 'org.webjars.npm:primeicons:7.0.0'
+//        // PrimeFaces Extensions
+//        implementation 'org.primefaces.extensions:primefaces-extensions:14.0.6'
 
 
 
