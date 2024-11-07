@@ -18,8 +18,35 @@ const centerY = document.getElementById("svg").getAttribute('height') / 2; // Ц
  */
 const scale = 40;
 
+function svgClick(event) {
+    /* check if radius set */
+    // if (getR() <= 0) {
+    //     alert('Please, set a radius first');
+    //     return;
+    // }
+
+    const svg = document.getElementById('svg');
+    const rect = svg.getBoundingClientRect();
+    const xClick = event.clientX - rect.left;
+    const yClick = event.clientY - rect.top;
+
+    let x = (xClick - centerX) / scale;
+    let y = (centerY - yClick) / scale;
+
+    document.getElementById("hidden-form:graph-x").value = x;
+    document.getElementById("hidden-form:graph-y").value = y;
+    document.getElementById("hidden-form:graph-r").value = getR();
+    // sendPoint(x, y);
+    document.getElementById("hidden-form:graph-send").click();
+}
+document.getElementById('svg').addEventListener('click', svgClick);
 
 
+
+function getR() {
+    const r = PF('rSliderWidget').getValue();
+    return r;
+}
 
 // /**
 //  * Handles checking any of 'r' checkboxes
@@ -35,73 +62,43 @@ const scale = 40;
 // }
 
 
-function getR() {
-    const r = PF('rSliderWidget').getValue();
-    return r;
-}
-function handleSlideR(event) {
-    updateShapes(getR());
-}
-function updateShapes(r) {
-    /* get radius */
-    const radius = r * scale;
-
-    /* update triangle */
-    const trianglePoints = `
-    ${centerX},${centerY}
-    ${centerX},${centerY + radius}
-    ${centerX - radius},${centerY}
-  `;
-    document.getElementById('triangle').setAttribute('points', trianglePoints.trim());
-
-    /* update rectangle */
-    const rectangle = document.getElementById('rectangle');
-    rectangle.setAttribute('x', centerX);
-    rectangle.setAttribute('y', centerY - radius);
-    rectangle.setAttribute('width', radius);
-    rectangle.setAttribute('height', radius);
-
-    /* update quarter circle */
-    const quarterCirclePath = `
-    M ${centerX} ${centerY}
-    L ${centerX - radius} ${centerY}
-    A ${radius} ${radius} 0 0 1 ${centerX} ${centerY - radius}
-    Z `;
-    /*
-     M – move to (set starting point)
-     L – line to
-     A – arc to (rx ry x-axis-rotation large-arc-flag(0 for small and 1 for large) sweep-flag x y)
-    */
-    document.getElementById('quarterCircle').setAttribute('d', quarterCirclePath.trim());
-}
+// function handleSlideR(event) {
+//     updateShapes(getR());
+// }
+// function updateShapes(r) {
+//     /* get radius */
+//     const radius = r * scale;
+//
+//     /* update triangle */
+//     const trianglePoints = `
+//     ${centerX},${centerY}
+//     ${centerX},${centerY + radius}
+//     ${centerX - radius},${centerY}
+//   `;
+//     document.getElementById('triangle').setAttribute('points', trianglePoints.trim());
+//
+//     /* update rectangle */
+//     const rectangle = document.getElementById('rectangle');
+//     rectangle.setAttribute('x', centerX);
+//     rectangle.setAttribute('y', centerY - radius);
+//     rectangle.setAttribute('width', radius);
+//     rectangle.setAttribute('height', radius);
+//
+//     /* update quarter circle */
+//     const quarterCirclePath = `
+//     M ${centerX} ${centerY}
+//     L ${centerX - radius} ${centerY}
+//     A ${radius} ${radius} 0 0 1 ${centerX} ${centerY - radius}
+//     Z `;
+//     /*
+//      M – move to (set starting point)
+//      L – line to
+//      A – arc to (rx ry x-axis-rotation large-arc-flag(0 for small and 1 for large) sweep-flag x y)
+//     */
+//     document.getElementById('quarterCircle').setAttribute('d', quarterCirclePath.trim());
+// }
 
 
-/**
- *
- */
-function svgClick(event) {
-    /* check if radius set */
-    // if (getR() <= 0) {
-    //     alert('Please, set a radius first');
-    //     return;
-    // }
-
-    const svg = document.getElementById('svg');
-    const rect = svg.getBoundingClientRect();
-    const xClick = event.clientX - rect.left;
-    const yClick = event.clientY - rect.top;
-
-    let x = (xClick - centerX) / scale;
-    let y = (centerY - yClick) / scale;
-    updatePointer(x, y);
-
-    document.getElementById("hidden-form:graph-x").value = x;
-    document.getElementById("hidden-form:graph-y").value = y;
-    document.getElementById("hidden-form:graph-r").value = getR();
-    // sendPoint(x, y);
-    document.getElementById("hidden-form:graph-send").click();
-}
-document.getElementById('svg').addEventListener('click', svgClick);
 
 // function sendPoint(x, y) {
 //     const form = document.getElementById('data-form');
@@ -129,46 +126,46 @@ document.getElementById('svg').addEventListener('click', svgClick);
 //     });
 
 
-
-/**
- * Updates pointer on graph when user enters cords using input form
- */
-function updatePointer(x, y) {
-    // Вычисляем положение точки относительно центра графика
-    // Масштабируем координаты
-    const scaledX = centerX + x * scale;
-    const scaledY = centerY - y * scale; // Отрицательное, чтобы двигать вверх
-
-    // Получаем элемент circle для отрисовки точки
-    let pointElement = document.getElementById('pointer');
-
-    // Устанавливаем новые координаты для точки
-    pointElement.setAttribute('cx', scaledX);
-    pointElement.setAttribute('cy', scaledY);
-}
-
-/**
- * Draws a result point
- */
-function drawPoint(x, y, hit) {
-    // Вычисляем положение точки относительно центра графика
-    // Масштабируем координаты
-    const scaledX = centerX + x * scale;
-    const scaledY = centerY - y * scale; // Отрицательное, чтобы двигать вверх
-
-    const svg = document.getElementById('svg');
-
-    // Создаём точку
-    let pointElement = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
-
-    // Устанавливаем новые координаты для точки
-    pointElement.setAttribute('cx', scaledX);
-    pointElement.setAttribute('cy', scaledY);
-    pointElement.setAttribute('r', '4');
-    pointElement.setAttribute('fill', hit ? 'green' : 'red');
-
-    svg.appendChild(pointElement);
-}
+//
+// /**
+//  * Updates pointer on graph when user enters cords using input form
+//  */
+// function updatePointer(x, y) {
+//     // Вычисляем положение точки относительно центра графика
+//     // Масштабируем координаты
+//     const scaledX = centerX + x * scale;
+//     const scaledY = centerY - y * scale; // Отрицательное, чтобы двигать вверх
+//
+//     // Получаем элемент circle для отрисовки точки
+//     let pointElement = document.getElementById('pointer');
+//
+//     // Устанавливаем новые координаты для точки
+//     pointElement.setAttribute('cx', scaledX);
+//     pointElement.setAttribute('cy', scaledY);
+// }
+//
+// /**
+//  * Draws a result point
+//  */
+// function drawPoint(x, y, hit) {
+//     // Вычисляем положение точки относительно центра графика
+//     // Масштабируем координаты
+//     const scaledX = centerX + x * scale;
+//     const scaledY = centerY - y * scale; // Отрицательное, чтобы двигать вверх
+//
+//     const svg = document.getElementById('svg');
+//
+//     // Создаём точку
+//     let pointElement = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
+//
+//     // Устанавливаем новые координаты для точки
+//     pointElement.setAttribute('cx', scaledX);
+//     pointElement.setAttribute('cy', scaledY);
+//     pointElement.setAttribute('r', '4');
+//     pointElement.setAttribute('fill', hit ? 'green' : 'red');
+//
+//     svg.appendChild(pointElement);
+// }
 
 // /**
 //  * Validates params (for sending by clicking button)

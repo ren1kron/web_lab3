@@ -9,20 +9,14 @@
 <h:head>
     <title>Point hit. Web lab 3</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <h:outputStylesheet library="webjars" name="primeflex/3.3.1/primeflex.min.css" />
+    <h:outputStylesheet name="primeicons/primeicons.css" library="primefaces" />
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/clock-styling.css" />
 </h:head>
 
-<!--<h:panelGroup>-->
-
-<!--</h:panelGroup>-->
 <h:body>
-    <h:head>
-        <title>Point hit. Web lab 3</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <h:outputStylesheet library="webjars" name="primeflex/3.3.1/primeflex.min.css" />
-        <h:outputStylesheet name="primeicons/primeicons.css" library="primefaces" />
-        <!--    <h:outputStylesheet library="styles" name="./css/styles.css"/>-->
-        <link rel="stylesheet" href="css/styles.css" />
-    </h:head>
+
 
     <!-- Header -->
     <h:panelGroup layout="block" styleClass="header-container">
@@ -35,6 +29,17 @@
         </h2>
     </h:panelGroup>
 
+    <!-- Clock -->
+    <div class="clock-container">
+        <h:panelGroup id="clockPanel" class="digital-clock">
+            <h:outputText id="currentTime" value="#{clockBean.currentDateTime}" />
+        </h:panelGroup>
+    </div>
+    <!-- periodically update clock -->
+    <p:poll interval="7" update="clockPanel" />
+
+
+    <!-- Button "Start Play" -->
     <div class="flex align-items-center justify-content-center" style="height: 100vh;">
         <p:button value="Начать игру"
                   outcome="main.xhtml"

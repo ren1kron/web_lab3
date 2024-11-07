@@ -17,16 +17,8 @@
 
 <h:body>
 
-    <!--TODO сделать коммит    -->
-    <!--TODO подумать насчёт нормальной темы    -->
-    <!--TODO мне не нравится моя форма
-        - сделать нормальную валидацию входящих значений (с Y какая-то хуйня)
-        - починить pointer (синия точка, которая указывает туда, куда указывает основная форма)
-        - поменять график. Чтобы точки отрисовывались правильно              -->
-    <!--TODO добавить DB    -->
-    <!--TODO добавить часы на home_page. Вообще получше её оформить    -->
-    <!--TODO подумать над прикольным оформлением    -->
-    <!--TODO подумать над прикольным оформлением    -->
+    <!--TODO возможно, лучше разделить нажатие на разные кнопки по разным бинам    -->
+    <!--TODO клик хэндилтся плохо, конфликтует с кнопками. Надо править    -->
 
 
     <!-- Header -->
@@ -91,12 +83,15 @@
                     <p:commandButton icon="pi pi-check"
                                      id="btn_cfrm" value="Отправить" action="#{formBean.submit()}" ajax="true"
                                      update="data-form result-table graph-container"
+                                     styleClass="px-4 py-2"
                                      />
 
                     <!-- Кнопка очистки таблицы -->
                     <p:commandButton icon="pi pi-trash"
                                      id="btn_rst" value="Очистить" action="#{formBean.clear()}" ajax="true"
-                                     update="data-form result-table graph-container"/>
+                                     update="data-form result-table graph-container"
+                                     styleClass="px-4 py-2"
+                                     />
 
                     <!-- Сообщения -->
                     <p:messages id="messages" showDetail="false" autoUpdate="true" />
@@ -249,6 +244,7 @@
 
 
 
+    <script type="text/javascript" src="js/fetch.js"></script>
 
 </h:body>
 
