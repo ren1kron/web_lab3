@@ -27,6 +27,10 @@ public class FormBean implements Serializable {
     private float y;
     private float r;
 
+    private float graph_x;
+    private float graph_y;
+    private float graph_r;
+
     private List<Point> points;
 //    private List<Point> points = new ArrayList<>();
 
@@ -56,11 +60,18 @@ public class FormBean implements Serializable {
     /**
      * Method for submitting form
      */
-    public String submit() {
+    public String submit(boolean isGraphSubmit) {
         log.info("\"Submit\" click processing...");
         log.info("got point with coords x={}, y={}, r={}", x, y, r);
 
-        Point point = new Point(x, y, r);
+//        Point point = new Point(x, y, r);
+
+        Point point;
+
+        if (isGraphSubmit)
+            point = new Point(graph_x, graph_y, graph_r);
+        else
+            point = new Point(x, y, r);
         points.add(point);
 
         // DB COMMUNICATION
@@ -76,6 +87,31 @@ public class FormBean implements Serializable {
 
         return null; // Остаемся на той же странице
     }
+//
+//    /**
+//     * Method for submitting form by clicking graph
+//     * P.S. Of course, I could
+//     */
+//    public String submit_graph() {
+//        log.info("\"Submit\" click processing...");
+//        log.info("got point with coords x={}, y={}, r={}", x, y, r);
+//
+//        Point point = new Point(graph_x, graph_y, graph_r);
+//        points.add(point);
+//
+//        // DB COMMUNICATION
+//        dbCommunicator.addPoint(point);
+//        log.info("Point added to DB");
+//        // DB COMMUNICATION
+//
+//        // Создаем сообщение
+//        FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_INFO, "Jsf - хуйня", "");
+//
+//        // Добавляем сообщение в FacesContext
+//        FacesContext.getCurrentInstance().addMessage(null, message);
+//
+//        return null; // Остаемся на той же странице
+//    }
 
     /**
      * Clear the list of points and DB

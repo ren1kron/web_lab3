@@ -52,7 +52,7 @@
                             <f:selectItem itemLabel="1" itemValue="#{1}" />
                             <f:selectItem itemLabel="2" itemValue="#{2}" />
                             <f:selectItem itemLabel="3" itemValue="#{3}" />
-                            <p:ajax update="graph-container" process="@this x" />
+                            <p:ajax update="graph-container" process="@this x" oncomplete="addSvgListener()" />
                         </p:selectOneRadio>
                     </h:panelGrid>
 
@@ -62,7 +62,7 @@
                         <h6>Y: </h6>
                         <p:inputText id="y" placeholder="(-3 ... 5)" value="#{formBean.y}" required="true" requiredMessage="Y is required" validatorMessage="Y must be in [-3; 5]">
                             <f:validateDoubleRange minimum="-3" maximum="5"/>
-                            <p:ajax event="input" update="graph-container" process="@this y" />
+                            <p:ajax event="input" update="graph-container" process="@this y" oncomplete="addSvgListener()" />
                         </p:inputText>
                     </div>
 
@@ -75,32 +75,35 @@
                     </h:outputText>
                     <h:inputHidden id="r" value="#{formBean.r}"/>
                     <p:slider for="r" display="r-output" minValue="2" maxValue="5" step="0.25" range="false" style="width:200px;" widgetVar="rSliderWidget" >
-                        <p:ajax event="slideEnd" update="graph-container" process="@this r" />
+                        <p:ajax event="slideEnd" update="graph-container" process="@this r" oncomplete="addSvgListener()" />
                     </p:slider>
         <!--            </p:panel>-->
 
                     <!-- Кнопка отправки формы -->
                     <p:commandButton icon="pi pi-check"
-                                     id="btn_cfrm" value="Отправить" action="#{formBean.submit()}" ajax="true"
+                                     id="btn_cfrm" value="Отправить" action="#{formBean.submit(false)}" ajax="true"
                                      update="data-form result-table graph-container"
                                      styleClass="px-4 py-2"
+                                     oncomplete="addSvgListener()"
                                      />
 
                     <!-- Кнопка очистки таблицы -->
                     <p:commandButton icon="pi pi-trash"
+                                     styleClass="px-4 py-2"
                                      id="btn_rst" value="Очистить" action="#{formBean.clear()}" ajax="true"
                                      update="data-form result-table graph-container"
-                                     styleClass="px-4 py-2"
+                                     process="@this"
+                                     oncomplete="addSvgListener()"
                                      />
 
                     <!-- Сообщения -->
                     <p:messages id="messages" showDetail="false" autoUpdate="true" />
                 </h:form>
                 <h:form id="hidden-form">
-                    <h:inputHidden value="#{formBean.x}" id="graph-x"/>
-                    <h:inputHidden value="#{formBean.y}" id="graph-y"/>
-                    <h:inputHidden value="#{formBean.r}" id="graph-r"/>
-                    <h:commandButton id="graph-send" action="#{formBean.submit()}" style="opacity: 0"/>
+                    <h:inputHidden value="#{formBean.graph_x}" id="graph-x"/>
+                    <h:inputHidden value="#{formBean.graph_y}" id="graph-y"/>
+                    <h:inputHidden value="#{formBean.graph_r}" id="graph-r"/>
+                    <h:commandButton id="graph-send" action="#{formBean.submit(true)}" style="opacity: 0"/>
                 </h:form>
             </p:splitterPanel>
             <!-- Graph -->
@@ -194,7 +197,7 @@
                     <ui:repeat value="#{formBean.points}" var="point">
                         <circle cx="#{250 + point.x * 40}"
                                 cy="#{250 - point.y * 40}"
-                                r="2.5"
+                                r="3.5"
                                 fill="${point.hit ? '#11FF00FF' : 'red'}"
                         fill-opacity="0.9"
                         stroke="${point.hit ? 'green' : 'firebrick'}"/>

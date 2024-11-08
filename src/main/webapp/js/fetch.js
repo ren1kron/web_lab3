@@ -39,7 +39,18 @@ function svgClick(event) {
     // sendPoint(x, y);
     document.getElementById("hidden-form:graph-send").click();
 }
-document.getElementById('svg').addEventListener('click', svgClick);
+
+function addSvgListener() {
+    console.log("hui start...")
+    document.getElementById('svg').removeEventListener('click', svgClick);
+    document.getElementById('svg').addEventListener('click', svgClick);
+    console.log("hui end...")
+}
+
+window.onload = function() {
+    addSvgListener();
+}
+
 
 
 
@@ -47,6 +58,7 @@ function getR() {
     const r = PF('rSliderWidget').getValue();
     return r;
 }
+
 
 // /**
 //  * Handles checking any of 'r' checkboxes
