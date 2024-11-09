@@ -30,6 +30,7 @@
         <param-name>primefaces.THEME</param-name>
 <!--        <param-value>cupertino</param-value>-->
         <param-value>bootstrap</param-value>
+<!--        <param-value>luna-amber</param-value>-->
     </context-param>
 
 
