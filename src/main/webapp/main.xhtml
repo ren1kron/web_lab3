@@ -100,7 +100,21 @@
                     <h:inputHidden value="#{formBean.graph_x}" id="graph-x"/>
                     <h:inputHidden value="#{formBean.graph_y}" id="graph-y"/>
                     <h:inputHidden value="#{formBean.graph_r}" id="graph-r"/>
-                    <h:commandButton id="graph-send" action="#{formBean.submit(true)}" style="opacity: 0"/>
+<!--                    <h:commandButton id="graph-send" action="#{formBean.submit(true)}" style="opacity: 0"/>-->
+                    <p:commandButton id="graph-send"
+                                     ajax="true"
+                                     action="#{formBean.submit(true)}"
+                                     process="@this graph-x graph-y graph-r"
+                                     update="data-form result-table graph-container"
+                                     oncomplete="addSvgListener()"
+                                     style="display:none;" />
+<!--                    <p:commandButton icon="pi pi-check"-->
+<!--                                     id="btn_cfrm" value="Отправить" action="#{formBean.submit(false)}" ajax="true"-->
+<!--                                     update="data-form result-table graph-container"-->
+<!--                                     styleClass="px-4 py-2"-->
+<!--                                     oncomplete="addSvgListener()"-->
+<!--                    />-->
+
                 </h:form>
             </p:splitterPanel>
             <!-- Graph -->

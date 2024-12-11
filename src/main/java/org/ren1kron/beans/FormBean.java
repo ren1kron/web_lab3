@@ -42,7 +42,7 @@ public class FormBean implements Serializable {
     @PostConstruct
     public void init() {
         log.info("formBean init...");
-        x = 0;
+//        x = 0;
         y = 0;
         r = 5;
 
@@ -62,16 +62,18 @@ public class FormBean implements Serializable {
     /**
      * Method for submitting form
      */
-    public String submit(boolean isGraphSubmit) {
+    public synchronized String submit(boolean isGraphSubmit) {
         log.info("\"Submit\" click processing...");
         log.info("got point with coords x={}, y={}, r={}", x, y, r);
 
         Point point;
 
-        if (isGraphSubmit)
+        if (isGraphSubmit) {
             point = new Point(graph_x, graph_y, graph_r);
-        else
+        }
+        else {
             point = new Point(x, y, r);
+        }
         points.add(point);
 
         // DB COMMUNICATION

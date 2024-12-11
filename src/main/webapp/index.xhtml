@@ -13,6 +13,20 @@
     <h:outputStylesheet name="primeicons/primeicons.css" library="primefaces" />
     <link rel="stylesheet" href="css/styles.css" />
     <link rel="stylesheet" href="css/clock-styling.css" />
+    <script type="text/javascript">
+        function updateClock() {
+            var now = new Date();
+            var hours = now.getHours().toString().padStart(2, '0');
+            var minutes = now.getMinutes().toString().padStart(2, '0');
+            var seconds = now.getSeconds().toString().padStart(2, '0');
+            var currentTime = hours + ':' + minutes + ':' + seconds;
+            document.getElementById('clock-display').textContent = currentTime;
+        }
+        window.onload = function() {
+            updateClock();
+            setInterval(updateClock, 1000);
+        }
+    </script>
 </h:head>
 
 <h:body>
@@ -29,14 +43,32 @@
         </h2>
     </h:panelGroup>
 
-    <!-- Clock -->
-    <div class="clock-container">
-        <h:panelGroup id="clockPanel" class="digital-clock flex align-items-center justify-content-center">
-            <h:outputText id="currentTime" value="#{clockBean.currentDateTime}" />
-        </h:panelGroup>
+    <div class="mt-5 flex align-items-center justify-content-center">
+    <svg width="200" height="100" xmlns="http://www.w3.org/2000/svg">
+        <!-- Background Rectangle -->
+        <rect x="0" y="0" width="200" height="100" fill="#e31043" rx="15" ry="15" />
+
+        <!-- Screen -->
+        <rect x="5" y="5" width="190" height="90" fill="#132128" rx="10" ry="10" />
+        <!-- Отображение часов -->
+        <foreignObject x="15" y="15" width="170" height="70">
+            <div class="clock-container" xmlns="http://www.w3.org/1999/xhtml" style="width: 100%;">
+                <div id="clock-display" class="digital-clock flex align-items-center justify-content-center"></div>
+            </div>
+        </foreignObject>
+
+    </svg>
     </div>
+
+
+<!--    &lt;!&ndash; Clock &ndash;&gt;-->
+<!--    <div class="clock-container">-->
+<!--        <h:panelGroup id="clockPanel" class="digital-clock flex align-items-center justify-content-center">-->
+<!--            <h:outputText id="currentTime" value="#{clockBean.currentDateTime}" />-->
+<!--        </h:panelGroup>-->
+<!--    </div>-->
     <!-- periodically update clock -->
-    <p:poll interval="7" update="clockPanel" />
+<!--    <p:poll interval="7" update="clockPanel" />-->
 
 
     <!-- Button "Start Play" -->
@@ -48,6 +80,7 @@
 
 
 </h:body>
+
 
 </html>
 

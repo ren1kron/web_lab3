@@ -75,40 +75,40 @@ function getR() {
 
 
 // function handleSlideR(event) {
-//     updateShapes(getR());
+//     updateShapes(getR());// function updateShapes(r) {
+// //     /* get radius */
+// //     const radius = r * scale;
+// //
+// //     /* update triangle */
+// //     const trianglePoints = `
+// //     ${centerX},${centerY}
+// //     ${centerX},${centerY + radius}
+// //     ${centerX - radius},${centerY}
+// //   `;
+// //     document.getElementById('triangle').setAttribute('points', trianglePoints.trim());
+// //
+// //     /* update rectangle */
+// //     const rectangle = document.getElementById('rectangle');
+// //     rectangle.setAttribute('x', centerX);
+// //     rectangle.setAttribute('y', centerY - radius);
+// //     rectangle.setAttribute('width', radius);
+// //     rectangle.setAttribute('height', radius);
+// //
+// //     /* update quarter circle */
+// //     const quarterCirclePath = `
+// //     M ${centerX} ${centerY}
+// //     L ${centerX - radius} ${centerY}
+// //     A ${radius} ${radius} 0 0 1 ${centerX} ${centerY - radius}
+// //     Z `;
+// //     /*
+// //      M – move to (set starting point)
+// //      L – line to
+// //      A – arc to (rx ry x-axis-rotation large-arc-flag(0 for small and 1 for large) sweep-flag x y)
+// //     */
+// //     document.getElementById('quarterCircle').setAttribute('d', quarterCirclePath.trim());
+// // }
 // }
-// function updateShapes(r) {
-//     /* get radius */
-//     const radius = r * scale;
-//
-//     /* update triangle */
-//     const trianglePoints = `
-//     ${centerX},${centerY}
-//     ${centerX},${centerY + radius}
-//     ${centerX - radius},${centerY}
-//   `;
-//     document.getElementById('triangle').setAttribute('points', trianglePoints.trim());
-//
-//     /* update rectangle */
-//     const rectangle = document.getElementById('rectangle');
-//     rectangle.setAttribute('x', centerX);
-//     rectangle.setAttribute('y', centerY - radius);
-//     rectangle.setAttribute('width', radius);
-//     rectangle.setAttribute('height', radius);
-//
-//     /* update quarter circle */
-//     const quarterCirclePath = `
-//     M ${centerX} ${centerY}
-//     L ${centerX - radius} ${centerY}
-//     A ${radius} ${radius} 0 0 1 ${centerX} ${centerY - radius}
-//     Z `;
-//     /*
-//      M – move to (set starting point)
-//      L – line to
-//      A – arc to (rx ry x-axis-rotation large-arc-flag(0 for small and 1 for large) sweep-flag x y)
-//     */
-//     document.getElementById('quarterCircle').setAttribute('d', quarterCirclePath.trim());
-// }
+
 
 
 
