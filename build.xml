@@ -1,0 +1,379 @@
+<project name="web3" default="compile" basedir="."
+         xmlns:ivy="antlib:org.apache.ivy.ant">
+
+    <property file="build.properties"/>
+    <target name="resolve" description="resolve dependencies">
+        <ivy:resolve/>
+    </target>
+
+
+    <!-- Подключаем стандартные таски JUnit -->
+    <taskdef name="junit" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"/>
+
+
+    <!-- ========== compile ========== -->
+    <target name="compile" description="Compiling source codes" depends="resolve">
+        <ivy:cachepath pathid="classpath"/>
+        <mkdir dir="${classes}"/>
+        <javac srcdir="${src.dir}"
+               destdir="${classes}"
+               includeantruntime="false"
+               classpathref="classpath" />
+        <echo message="PROJECT SUCK_SEX_FULLY COMPILED!!!"/>
+    </target>
+
+    <!-- ========== Цель: build ========== -->
+    <target name="build" depends="compile" description="Компиляция и упаковка в jar">
+        <mkdir dir="${dist.dir}"/>
+        <jar destfile="${dist.dir}/${jar.name}" basedir="${build.dir}">
+            <!-- Добавляем манифест с нужными полями -->
+            <manifest>
+                <attribute name="Main-Class" value="${main.class}"/>
+                <attribute name="Implementation-Version" value="${project.version}"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <!-- ========== Цель: clean ========== -->
+    <target name="clean" description="Очистка скомпилированных классов и временных файлов">
+        <delete dir="${build.dir}"/>
+<!--        <delete dir="${dist.dir}"/>-->
+    </target>
+
+    <!-- ========== Цель: test ========== -->
+    <target name="test" depends="build" description="Запуск junit-тестов">
+        <junit printsummary="true" haltonfailure="true" fork="true">
+            <classpath refid="classpath"/>
+            <test name="org.example.AllTests"/>
+            <!-- Имена тестовых классов/сьютов меняйте под себя -->
+            <!-- Или используйте batchtest для поиска всех тестов -->
+            <!--
+            <batchtest fork="yes" todir="${build.dir}">
+                <fileset dir="${test.dir}">
+                    <include name="**/*Test.java"/>
+                </fileset>
+            </batchtest>
+            -->
+        </junit>
+    </target>
+
+    <!-- ========== Цель: scp ========== -->
+    <target name="scp" depends="build" description="Перемещение собранного проекта по SCP">
+        <!-- Нужно, чтобы Ant умел выполнять scp:
+             <taskdef name="scp" classname="org.apache.tools.ant.taskdefs.optional.ssh.Scp"/>
+             или использование <exec> со сторонними инструментами scp/pscp. -->
+
+        <!-- Пример через scp Ant (требует дополнительной настройки SSH Tasks for Ant):
+        <scp file="${dist.dir}/${jar.name}"
+             todir="${scp.user}@${scp.host}:${scp.remote.dir}"
+             port="${scp.port}"
+             trust="true"/>
+        -->
+
+        <!-- Пример через <exec> (если нет SSH-таска): -->
+        <exec executable="scp">
+            <arg value="-P"/>
+            <arg value="${scp.port}"/>
+            <arg value="${dist.dir}/${jar.name}"/>
+            <arg value="${scp.user}@${scp.host}:${scp.remote.dir}"/>
+        </exec>
+    </target>
+
+    <!-- ========== Цель: native2ascii ========== -->
+    <target name="native2ascii" description="Преобразование файлов локализации">
+        <!-- Преобразуем все *.properties из resources.dir (или src.dir) -->
+        <mkdir dir="${build.dir}/resources_native"/>
+        <native2ascii src="${resources.dir}"
+                      dest="${build.dir}/resources_native"
+                      includes="**/*.properties"
+                      encoding="UTF-8"/>
+    </target>
+
+    <!-- ========== Цель: doc ========== -->
+    <target name="doc" description="Добавление MD5 и SHA-1, генерация javadoc">
+        <!-- Расчёт MD5 и SHA-1 для jar (и других файлов) -->
+        <checksum file="${dist.dir}/${jar.name}"
+                  property="jar.checksum"
+                  algorithm="MD5"/>
+        <checksum file="${dist.dir}/${jar.name}"
+                  property="jar.sha1"
+                  algorithm="SHA-1"/>
+
+        <!-- Добавляем MD5 и SHA-1 в MANIFEST.MF (дополнительно) -->
+        <jar destfile="${dist.dir}/${jar.name}" update="true">
+            <manifest>
+                <attribute name="MD5" value="${jar.checksum}"/>
+                <attribute name="SHA-1" value="${jar.sha1}"/>
+            </manifest>
+        </jar>
+
+        <!-- Генерация javadoc -->
+        <mkdir dir="${doc.dir}"/>
+        <javadoc sourcepath="${src.dir}" destdir="${doc.dir}" classpathref="classpath" packagenames="org.example.**">
+            <doctitle>${project.name} API</doctitle>
+            <author>true</author>
+            <version>true</version>
+        </javadoc>
+
+        <!-- Добавляем javadoc в архив (если нужно) -->
+        <jar destfile="${dist.dir}/${jar.name}" update="true">
+            <fileset dir="${doc.dir}"/>
+        </jar>
+    </target>
+
+    <!-- ========== Цель: xml ========== -->
+    <target name="xml" description="Валидация всех XML-файлов в проекте">
+        <!-- Пример проверки XML-файлов с помощью XMLValidateTask -->
+        <xmlvalidate>
+            <fileset dir="${src.dir}">
+                <include name="**/*.xml"/>
+            </fileset>
+            <fileset dir="${resources.dir}">
+                <include name="**/*.xml"/>
+            </fileset>
+            <!-- при необходимости указываем XSD/DTD и прочие параметры -->
+        </xmlvalidate>
+    </target>
+
+    <!-- ========== Цель: music ========== -->
+    <target name="music" depends="build" description="Воспроизведение музыки по завершению сборки">
+        <!-- Демонстрация через <exec> (нужно указать правильный плеер) -->
+        <exec executable="mpg123">
+            <arg value="${music.file}"/>
+        </exec>
+    </target>
+
+    <!-- ========== Цель: team ========== -->
+    <target name="team" description="Получение 2 предыдущих ревизий из git, их сборка и упаковка в zip">
+        <!-- Предполагаем, что локальный репозиторий уже клонирован.
+             1) Получаем 2 предыдущие ревизии
+             2) Собираем их (вызываем цель build)
+             3) Упаковываем результат в zip
+        -->
+        <echo message="Получение 2 предыдущих ревизий из git..."/>
+        <exec executable="git">
+            <arg value="checkout"/>
+            <arg value="HEAD~2"/> <!-- переходим на ревизию HEAD~2 -->
+        </exec>
+
+        <ant target="build"/>
+
+        <copy file="${dist.dir}/${jar.name}" tofile="${dist.dir}/${jar.name}.rev2"/>
+
+        <exec executable="git">
+            <arg value="checkout"/>
+            <arg value="HEAD@{1}"/> <!-- одна ревизия выше (HEAD~1) -->
+        </exec>
+
+        <ant target="build"/>
+
+        <copy file="${dist.dir}/${jar.name}" tofile="${dist.dir}/${jar.name}.rev1"/>
+
+        <exec executable="git">
+            <arg value="checkout"/>
+            <arg value="main"/> <!-- возвращаемся на основную ветку или нужную ветку -->
+        </exec>
+
+        <!-- Упаковываем обе собранные jar в zip -->
+        <zip destfile="${dist.dir}/team_builds.zip">
+            <fileset dir="${dist.dir}">
+                <include name="*.rev1"/>
+                <include name="*.rev2"/>
+            </fileset>
+        </zip>
+    </target>
+
+    <!-- ========== Цель: diff ========== -->
+    <target name="diff" description="Проверка состояния рабочей копии и commit, если изменения не касаются критичных классов">
+        <!-- 1) Проверяем, какие файлы изменены (git status или git diff) -->
+        <exec executable="git">
+            <arg value="diff"/>
+            <arg value="--name-only"/>
+            <arg value="HEAD"/>
+            <!-- Сохраняем вывод в свойство -->
+            <redirector outputproperty="git.diff.files"/>
+        </exec>
+
+        <!-- 2) Если в списке нет критичных классов (из build.properties: diff.critical.classes),
+               то делаем commit. Иначе - пропускаем. -->
+        <condition property="do.commit">
+            <not>
+                <contains string="${git.diff.files}" substring="${diff.critical.classes}"/>
+            </not>
+        </condition>
+
+        <echo message="Изменённые файлы: ${git.diff.files}"/>
+
+        <echo message="do.commit: ${do.commit}"/>
+
+        <if condition="${do.commit}">
+            <then>
+                <echo message="Commit изменений..."/>
+                <exec executable="git">
+                    <arg value="commit"/>
+                    <arg value="-a"/>
+                    <arg value="-m"/>
+                    <arg value="Автоматический commit"/>
+                </exec>
+                <exec executable="git">
+                    <arg value="push"/>
+                </exec>
+            </then>
+            <else>
+                <echo message="Изменения затрагивают критичные классы. Commit пропущен."/>
+            </else>
+        </if>
+    </target>
+
+    <!-- ========== Цель: history ========== -->
+    <target name="history" description="Откат к предыдущим ревизиям, пока не удастся скомпилировать проект">
+        <echo message="Пытаемся собрать текущую версию..."/>
+
+        <!-- Пробуем compile, если неудача - откатываемся -->
+        <ant target="compile" failonerror="false" errorproperty="compile.failed"/>
+
+        <if condition="${compile.failed}">
+            <then>
+                <echo message="Сборка не удалась. Переходим к предыдущей ревизии..."/>
+                <exec executable="git">
+                    <arg value="checkout"/>
+                    <arg value="HEAD~1"/>
+                </exec>
+
+                <!-- Рекурсивный вызов той же цели history, пока не соберётся
+                     или пока не достигнем самой первой ревизии -->
+                <ant target="history"/>
+            </then>
+            <else>
+                <echo message="Сборка прошла успешно на ревизии:"/>
+                <exec executable="git">
+                    <arg value="rev-parse"/>
+                    <arg value="HEAD"/>
+                    <redirector outputproperty="current.sha"/>
+                </exec>
+                <echo message="Текущая ревизия: ${current.sha}"/>
+
+                <!-- Формируем файл с результатом diff между этой ревизией
+                     и следующей, которая не собиралась -->
+                <exec executable="git">
+                    <arg value="show"/>
+                    <arg value="${current.sha}~1..${current.sha}"/>
+                    <redirector output="history_diff.txt"/>
+                </exec>
+            </else>
+        </if>
+    </target>
+
+    <!-- ========== Цель: alt ========== -->
+    <target name="alt" description="Создание альтернативной версии программы и упаковка в jar">
+        <!-- Меняем имена классов, переменных и т.д. с помощью replace/replaceregexp -->
+        <mkdir dir="${build.dir}/alt"/>
+
+        <!-- Копируем исходники во временную папку для замены -->
+        <copy todir="${build.dir}/alt">
+            <fileset dir="${src.dir}">
+                <include name="**/*.java"/>
+            </fileset>
+        </copy>
+
+        <!-- Пример замены -->
+        <replaceregexp flags="g"
+                       match="${replace.regex.oldName}"
+                       replace="${replace.regex.newName}">
+            <fileset dir="${build.dir}/alt">
+                <include name="**/*.java"/>
+            </fileset>
+        </replaceregexp>
+
+        <!-- Теперь компилируем уже альтернативные файлы -->
+        <javac srcdir="${build.dir}/alt"
+               destdir="${build.dir}/alt-classes"
+               includeantruntime="false"
+               classpathref="classpath" />
+
+        <!-- Упаковка альтернативной версии в jar, используя цель build (или повторяя её логику) -->
+        <jar destfile="${dist.dir}/${project.name}-alt-${project.version}.jar" basedir="${build.dir}/alt-classes">
+            <manifest>
+                <attribute name="Main-Class" value="${main.class}"/>
+                <attribute name="Implementation-Version" value="${project.version}-alt"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <!-- ========== Цель: report ========== -->
+    <target name="report" depends="test" description="Сохраняет JUnit-отчёт и делает commit в SVN">
+        <!-- Если тесты прошли успешно, сохраняем XML-отчёт и добавляем в SVN -->
+        <!-- Допустим, JUnit по умолчанию складывает отчёты в build/junit/ (или другой путь).
+             Или нужно воспользоваться <formatter> в <junit> -->
+
+        <copy todir="${build.dir}/junit-reports">
+            <fileset dir="${build.dir}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+        </copy>
+
+        <!-- Добавляем отчёт в SVN и коммитим -->
+        <!-- Аналогично git, если у вас SVN: -->
+        <exec executable="svn">
+            <arg value="add"/>
+            <arg value="${build.dir}/junit-reports"/>
+            <arg value="--force"/>
+        </exec>
+        <exec executable="svn">
+            <arg value="commit"/>
+            <arg value="-m"/>
+            <arg value="Добавление отчёта о тестах"/>
+        </exec>
+    </target>
+
+    <!-- ========== Цель: env ========== -->
+    <target name="env" description="Сборка и запуск программы в альтернативных окружениях">
+        <!-- Предположим, есть несколько версий Java, и мы хотим прогнать программу под всеми -->
+        <foreach list="${env.java.versions}" param="java.version" delimiter=",">
+            <sequential>
+                <echo message="Запуск под Java ${java.version} с опциями ${env.jvm.args}"/>
+                <!-- Укажем путь к нужной java, например:
+                     /usr/lib/jvm/java-${java.version}/bin/java
+                     или, если действительно установлено несколько версий.
+                -->
+                <exec executable="/usr/lib/jvm/java-${java.version}/bin/java">
+                    <arg line="${env.jvm.args}"/>
+                    <arg value="-jar"/>
+                    <arg value="${dist.dir}/${jar.name}"/>
+                </exec>
+            </sequential>
+        </foreach>
+    </target>
+
+
+    <target name="draw_shrek" description="draws shrek">
+        <echo><![CDATA[
+                           ⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣤⣤⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+            ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣀⠀⠀⠀⢀⣴⠟⠉⠀⠀⠀⠈⠻⣦⡀⠀⠀⠀⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+            ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣷⣀⢀⣾⠿⠻⢶⣄⠀⠀⣠⣶⡿⠶⣄⣠⣾⣿⠗⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+            ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⢻⣿⣿⡿⣿⠿⣿⡿⢼⣿⣿⡿⣿⣎⡟⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+            ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⡟⠉⠛⢛⣛⡉⠀⠀⠙⠛⠻⠛⠑⣷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+            ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣿⣧⣤⣴⠿⠿⣷⣤⡤⠴⠖⠳⣄⣀⣹⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+            ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⣿⣀⣟⠻⢦⣀⡀⠀⠀⠀⠀⣀⡈⠻⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+            ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣼⡿⠉⡇⠀⠀⠛⠛⠛⠋⠉⠉⠀⠀⠀⠹⢧⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+            ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⡟⠀⢦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠃⠀⠈⠑⠪⠷⠤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+            ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣾⣿⣿⣿⣦⣼⠛⢦⣤⣄⡀⠀⠀⠀⠀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠑⠢⡀⠀⠀⠀⠀⠀
+            ⠀⠀⠀⠀⠀⠀⠀⢀⣠⠴⠲⠖⠛⠻⣿⡿⠛⠉⠉⠻⠷⣦⣽⠿⠿⠒⠚⠋⠉⠁⡞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⢦⠀⠀⠀⠀
+            ⠀⠀⠀⠀⠀⢀⣾⠛⠁⠀⠀⠀⠀⠀⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠤⠒⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢣⠀⠀⠀
+            ⠀⠀⠀⠀⣰⡿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣑⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⡇⠀⠀
+            ⠀⠀⠀⣰⣿⣁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣾⣧⣄⠀⠀⠀⠀⠀⠀⢳⡀⠀
+            ⠀⠀⠀⣿⡾⢿⣀⢀⣀⣦⣾⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣾⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡰⣫⣿⡿⠟⠻⠶⠀⠀⠀⠀⠀⢳⠀
+            ⠀⠀⢀⣿⣧⡾⣿⣿⣿⣿⣿⡷⣶⣤⡀⠀⠀⠀⠀⠀⠀⠀⢀⡴⢿⣿⣧⠀⡀⠀⢀⣀⣀⢒⣤⣶⣿⣿⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇
+            ⠀⠀⡾⠁⠙⣿⡈⠉⠙⣿⣿⣷⣬⡛⢿⣶⣶⣴⣶⣶⣶⣤⣤⠤⠾⣿⣿⣿⡿⠿⣿⠿⢿⣿⣿⣿⣿⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇
+            ⠀⣸⠃⠀⠀⢸⠃⠀⠀⢸⣿⣿⣿⣿⣿⣿⣷⣾⣿⣿⠟⡉⠀⠀⠀⠈⠙⠛⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇
+            ⠀⣿⠀⠀⢀⡏⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⠿⠿⠛⠛⠉⠁⠀⠀⠀⠀⠀⠉⠠⠿⠟⠻⠟⠋⠉⢿⣿⣦⡀⢰⡀⠀⠀⠀⠀⠀⠀⠁
+            ⢀⣿⡆⢀⡾⠀⠀⠀⠀⣾⠏⢿⣿⣿⣿⣯⣙⢷⡄⠀⠀⠀⠀⠀⢸⡄⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣿⣻⢿⣷⣀⣷⣄⠀⠀⠀⠀⢸⠀
+            ⢸⠃⠠⣼⠃⠀⠀⣠⣾⡟⠀⠈⢿⣿⡿⠿⣿⣿⡿⠿⠿⠿⠷⣄⠈⠿⠛⠻⠶⢶⣄⣀⣀⡠⠈⢛⡿⠃⠈⢿⣿⣿⡿⠀⠀⠀⠀⠀⡀
+            ⠟⠀⠀⢻⣶⣶⣾⣿⡟⠁⠀⠀⢸⣿⢅⠀⠈⣿⡇⠀⠀⠀⠀⠀⣷⠂⠀⠀⠀⠀⠐⠋⠉⠉⠀⢸⠁⠀⠀⠀⢻⣿⠛⠀⠀⠀⠀⢀⠇
+            ⠀⠀⠀⠀⠹⣿⣿⠋⠀⠀⠀⠀⢸⣧⠀⠰⡀⢸⣷⣤⣤⡄⠀⠀⣿⡀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡆⠀⠀⠀⠀⡾⠀⠀⠀⠀⠀⠀⢼⡇
+            ⠀⠀⠀⠀⠀⠙⢻⠄⠀⠀⠀⠀⣿⠉⠀⠀⠈⠓⢯⡉⠉⠉⢱⣶⠏⠙⠛⠚⠁⠀⠀⠀⠀⠀⣼⠇⠀⠀⠀⢀⡇⠀⠀⠀⠀⠀⠀⠀⡇
+            ⠀⠀⠀⠀⠀⠀⠻⠄⠀⠀⠀⢀⣿⠀⢠⡄⠀⠀⠀⣁⠁⡀⠀⢠⠀⠀⠀⠀⠀⠀⠀⠀⢀⣐⡟⠀⠀⠀⠀⢸⡇⠀⠀⠀⠀⠀⠀⢠⡇]]>
+        </echo>
+    </target>
+
+</project>
