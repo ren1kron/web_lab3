@@ -2,14 +2,15 @@
          xmlns:ivy="antlib:org.apache.ivy.ant">
 
     <property file="build.properties"/>
-    <target name="resolve" description="resolve dependencies">
-        <ivy:resolve/>
-    </target>
-
 
     <!-- Подключаем стандартные таски JUnit -->
     <taskdef name="junit" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"/>
 
+
+    <!-- ivy -->
+    <target name="resolve" description="resolve dependencies">
+        <ivy:resolve/>
+    </target>
 
     <!-- ========== compile ========== -->
     <target name="compile" description="Compiling source codes" depends="resolve">
@@ -22,25 +23,27 @@
         <echo message="PROJECT SUCK_SEX_FULLY COMPILED!!!"/>
     </target>
 
-    <!-- ========== Цель: build ========== -->
-    <target name="build" depends="compile" description="Компиляция и упаковка в jar">
+    <!-- ========== build ========== -->
+    <target name="build" depends="compile" description="Compilation and packaging into war">
         <mkdir dir="${dist.dir}"/>
-        <jar destfile="${dist.dir}/${jar.name}" basedir="${build.dir}">
-            <!-- Добавляем манифест с нужными полями -->
-            <manifest>
-                <attribute name="Main-Class" value="${main.class}"/>
-                <attribute name="Implementation-Version" value="${project.version}"/>
-            </manifest>
-        </jar>
+<!--        <jar destfile="${dist.dir}/${jar.name}" basedir="${classes}">-->
+<!--            <manifest>-->
+<!--                <attribute name="Implementation-Version" value="${project.version}"/>-->
+<!--            </manifest>-->
+<!--        </jar>-->
+        <war destfile="${dist.dir}/${war.name}" webxml="${web.dir}/WEB-INF/web.xml">
+            <classes dir="${build.dir}"/>
+            <fileset dir="${web.dir}"/>
+        </war>
     </target>
 
-    <!-- ========== Цель: clean ========== -->
+    <!-- ========== clean ========== -->
     <target name="clean" description="Очистка скомпилированных классов и временных файлов">
         <delete dir="${build.dir}"/>
-<!--        <delete dir="${dist.dir}"/>-->
+        <delete dir="${dist.dir}"/>
     </target>
 
-    <!-- ========== Цель: test ========== -->
+    <!-- ========== test ========== -->
     <target name="test" depends="build" description="Запуск junit-тестов">
         <junit printsummary="true" haltonfailure="true" fork="true">
             <classpath refid="classpath"/>
@@ -57,7 +60,7 @@
         </junit>
     </target>
 
-    <!-- ========== Цель: scp ========== -->
+    <!-- ========== scp ========== -->
     <target name="scp" depends="build" description="Перемещение собранного проекта по SCP">
         <!-- Нужно, чтобы Ant умел выполнять scp:
              <taskdef name="scp" classname="org.apache.tools.ant.taskdefs.optional.ssh.Scp"/>
@@ -79,7 +82,7 @@
         </exec>
     </target>
 
-    <!-- ========== Цель: native2ascii ========== -->
+    <!-- ========== native2ascii ========== -->
     <target name="native2ascii" description="Преобразование файлов локализации">
         <!-- Преобразуем все *.properties из resources.dir (или src.dir) -->
         <mkdir dir="${build.dir}/resources_native"/>
@@ -89,7 +92,7 @@
                       encoding="UTF-8"/>
     </target>
 
-    <!-- ========== Цель: doc ========== -->
+    <!-- ========== doc ========== -->
     <target name="doc" description="Добавление MD5 и SHA-1, генерация javadoc">
         <!-- Расчёт MD5 и SHA-1 для jar (и других файлов) -->
         <checksum file="${dist.dir}/${jar.name}"
@@ -121,7 +124,7 @@
         </jar>
     </target>
 
-    <!-- ========== Цель: xml ========== -->
+    <!-- ========== xml ========== -->
     <target name="xml" description="Валидация всех XML-файлов в проекте">
         <!-- Пример проверки XML-файлов с помощью XMLValidateTask -->
         <xmlvalidate>
@@ -135,7 +138,7 @@
         </xmlvalidate>
     </target>
 
-    <!-- ========== Цель: music ========== -->
+    <!-- ========== music ========== -->
     <target name="music" depends="build" description="Воспроизведение музыки по завершению сборки">
         <!-- Демонстрация через <exec> (нужно указать правильный плеер) -->
         <exec executable="mpg123">
@@ -143,7 +146,7 @@
         </exec>
     </target>
 
-    <!-- ========== Цель: team ========== -->
+    <!-- ========== team ========== -->
     <target name="team" description="Получение 2 предыдущих ревизий из git, их сборка и упаковка в zip">
         <!-- Предполагаем, что локальный репозиторий уже клонирован.
              1) Получаем 2 предыдущие ревизии
@@ -183,7 +186,7 @@
         </zip>
     </target>
 
-    <!-- ========== Цель: diff ========== -->
+    <!-- ========== diff ========== -->
     <target name="diff" description="Проверка состояния рабочей копии и commit, если изменения не касаются критичных классов">
         <!-- 1) Проверяем, какие файлы изменены (git status или git diff) -->
         <exec executable="git">
