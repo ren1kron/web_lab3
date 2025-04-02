@@ -10,7 +10,7 @@
     <!-- ivy -->
     <target name="resolve" description="resolve dependencies">
         <ivy:resolve/>
-        <ivy:cachepath pathid="classpath"/>
+        <ivy:cachepath pathid="classpath" conf="compile, test"/>
     </target>
 
     <!-- ========== compile ========== -->
@@ -46,7 +46,7 @@
 <!--            </manifest>-->
 <!--        </jar>-->
         <war destfile="${dist.dir}/${war.name}" webxml="${web.dir}/WEB-INF/web.xml">
-            <classes dir="${build.dir}"/>
+            <classes dir="${classes}"/>
             <fileset dir="${web.dir}"/>
         </war>
     </target>
@@ -59,20 +59,12 @@
 
     <!-- ========== test ========== -->
     <target name="test" depends="build" description="Running junit-tests">
-        <mkdir dir="${classes}/test"/>
-        <javac
-                srcdir="test.dir"
-                destdir="${classes}/java/test"
-                includeantruntime="false"
-                classpathref="classpath" />
-
-
-        <junit printsummary="on" haltonfailure="true" haltonerror="true" fork="true">
+        <junit printsummary="on" haltonfailure="true" haltonerror="true">
             <classpath>
-                <path refid="ivy.classpath"/>
-                <pathelement location="${classes}"/>
+                <path refid="classpath"/>
+                <pathelement location="${classes}/java/test"/>
             </classpath>
-            <batchtest fork="yes" todir="${build.dir}/tests">
+            <batchtest fork="yes" todir="${build.dir}/test-results">
                 <formatter type="plain"/>
                 <fileset dir="${test.dir}" includes="*Test.java"/>
             </batchtest>
