@@ -10,16 +10,30 @@
     <!-- ivy -->
     <target name="resolve" description="resolve dependencies">
         <ivy:resolve/>
+        <ivy:cachepath pathid="classpath"/>
     </target>
 
     <!-- ========== compile ========== -->
     <target name="compile" description="Compiling source codes" depends="resolve">
-        <ivy:cachepath pathid="classpath"/>
-        <mkdir dir="${classes}"/>
-        <javac srcdir="${src.dir}"
-               destdir="${classes}"
+        <path refid="ivy.classpath"/>
+        <mkdir dir="${classes}/java/main"/>
+        <mkdir dir="${classes}/java/test"/>
+        <javac srcdir="${main.dir}"
+               destdir="${classes}/java/main"
                includeantruntime="false"
-               classpathref="classpath" />
+               classpathref="classpath">
+            <compilerarg value="-processor"/>
+            <compilerarg value="lombok.launch.AnnotationProcessorHider$AnnotationProcessor"/>
+        </javac>
+        <javac
+                srcdir="${test.dir}"
+                destdir="${classes}/java/test"
+                includeantruntime="false">
+            <classpath>
+                <path refid="classpath"/>
+                <pathelement location="${classes}/java/main"/>
+            </classpath>
+        </javac>
         <echo message="PROJECT SUCK_SEX_FULLY COMPILED!!!"/>
     </target>
 
@@ -38,25 +52,30 @@
     </target>
 
     <!-- ========== clean ========== -->
-    <target name="clean" description="Очистка скомпилированных классов и временных файлов">
+    <target name="clean" description="Cleaning up compiled classes and temporary files">
         <delete dir="${build.dir}"/>
         <delete dir="${dist.dir}"/>
     </target>
 
     <!-- ========== test ========== -->
-    <target name="test" depends="build" description="Запуск junit-тестов">
-        <junit printsummary="true" haltonfailure="true" fork="true">
-            <classpath refid="classpath"/>
-            <test name="org.example.AllTests"/>
-            <!-- Имена тестовых классов/сьютов меняйте под себя -->
-            <!-- Или используйте batchtest для поиска всех тестов -->
-            <!--
-            <batchtest fork="yes" todir="${build.dir}">
-                <fileset dir="${test.dir}">
-                    <include name="**/*Test.java"/>
-                </fileset>
+    <target name="test" depends="build" description="Running junit-tests">
+        <mkdir dir="${classes}/test"/>
+        <javac
+                srcdir="test.dir"
+                destdir="${classes}/java/test"
+                includeantruntime="false"
+                classpathref="classpath" />
+
+
+        <junit printsummary="on" haltonfailure="true" haltonerror="true" fork="true">
+            <classpath>
+                <path refid="ivy.classpath"/>
+                <pathelement location="${classes}"/>
+            </classpath>
+            <batchtest fork="yes" todir="${build.dir}/tests">
+                <formatter type="plain"/>
+                <fileset dir="${test.dir}" includes="*Test.java"/>
             </batchtest>
-            -->
         </junit>
     </target>
 
