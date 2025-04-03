@@ -137,16 +137,14 @@
     </target>
 
     <!-- ========== xml ========== -->
-    <target name="xml" description="Валидация всех XML-файлов в проекте">
-        <!-- Пример проверки XML-файлов с помощью XMLValidateTask -->
+    <target name="xml" description="Validate all XML files in a project">
         <xmlvalidate>
-            <fileset dir="${src.dir}">
-                <include name="**/*.xml"/>
-            </fileset>
             <fileset dir="${resources.dir}">
                 <include name="**/*.xml"/>
             </fileset>
-            <!-- при необходимости указываем XSD/DTD и прочие параметры -->
+            <fileset dir="${main.dir}/webapp">
+                <include name="**/*.xml"/>
+            </fileset>
         </xmlvalidate>
     </target>
 
