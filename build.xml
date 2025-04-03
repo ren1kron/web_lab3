@@ -149,9 +149,24 @@
     </target>
 
     <!-- ========== music ========== -->
-    <target name="music" depends="build" description="Воспроизведение музыки по завершению сборки">
-        <!-- Демонстрация через <exec> (нужно указать правильный плеер) -->
-        <exec executable="mpg123">
+    <target name="music" depends="build" description="Play music when build is complete">
+        <condition property="isWindows">
+            <os family="windows"/>
+        </condition>
+        <condition property="isMac">
+            <os family="mac"/>
+        </condition>
+
+        <!-- Windows -->
+        <exec executable="cmd" osfamily="windows" failonerror="false">
+            <arg value="/c"/>
+            <arg value="start"/>
+            <arg value=""/>
+            <arg value="${music.file}"/>
+        </exec>
+
+        <!-- macOS -->
+        <exec executable="afplay" osfamily="mac" failonerror="false">
             <arg value="${music.file}"/>
         </exec>
     </target>
