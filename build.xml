@@ -3,9 +3,8 @@
 
     <property file="build.properties"/>
 
-    <!-- Подключаем стандартные таски JUnit -->
-    <taskdef name="junit" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"/>
-
+<!--    <taskdef name="scp" classname="org.apache.tools.ant.taskdefs.optional.ssh.Scp"-->
+<!--             classpathref="classpath"/>-->
 
     <!-- ivy -->
     <target name="resolve" description="resolve dependencies">
@@ -39,13 +38,13 @@
 
     <!-- ========== build ========== -->
     <target name="build" depends="compile" description="Compilation and packaging into war">
-        <mkdir dir="${dist.dir}"/>
+        <mkdir dir="${libs}"/>
 <!--        <jar destfile="${dist.dir}/${jar.name}" basedir="${classes}">-->
 <!--            <manifest>-->
 <!--                <attribute name="Implementation-Version" value="${project.version}"/>-->
 <!--            </manifest>-->
 <!--        </jar>-->
-        <war destfile="${dist.dir}/${war.name}" webxml="${web.dir}/WEB-INF/web.xml">
+        <war destfile="${libs}/${war.name}" webxml="${web.dir}/WEB-INF/web.xml">
             <classes dir="${classes}"/>
             <fileset dir="${web.dir}"/>
         </war>
@@ -54,7 +53,7 @@
     <!-- ========== clean ========== -->
     <target name="clean" description="Cleaning up compiled classes and temporary files">
         <delete dir="${build.dir}"/>
-        <delete dir="${dist.dir}"/>
+        <delete dir="${libs}"/>
     </target>
 
     <!-- ========== test ========== -->
@@ -73,64 +72,66 @@
 
     <!-- ========== scp ========== -->
     <target name="scp" depends="build" description="Перемещение собранного проекта по SCP">
-        <!-- Нужно, чтобы Ant умел выполнять scp:
-             <taskdef name="scp" classname="org.apache.tools.ant.taskdefs.optional.ssh.Scp"/>
-             или использование <exec> со сторонними инструментами scp/pscp. -->
+        
+<!--        &lt;!&ndash; Нужно, чтобы Ant умел выполнять scp:-->
+<!--             <taskdef name="scp" classname="org.apache.tools.ant.taskdefs.optional.ssh.Scp"/>-->
+<!--             или использование <exec> со сторонними инструментами scp/pscp. &ndash;&gt;-->
 
-        <!-- Пример через scp Ant (требует дополнительной настройки SSH Tasks for Ant):
-        <scp file="${dist.dir}/${jar.name}"
+        <classpath>
+
+        </classpath>
+        <!-- Пример через scp Ant (требует дополнительной настройки SSH Tasks for Ant):-->
+        <scp file="${libs}/${war.name}"
              todir="${scp.user}@${scp.host}:${scp.remote.dir}"
              port="${scp.port}"
              trust="true"/>
-        -->
+
 
         <!-- Пример через <exec> (если нет SSH-таска): -->
-        <exec executable="scp">
-            <arg value="-P"/>
-            <arg value="${scp.port}"/>
-            <arg value="${dist.dir}/${jar.name}"/>
-            <arg value="${scp.user}@${scp.host}:${scp.remote.dir}"/>
-        </exec>
+<!--        <exec executable="scp">-->
+<!--            <arg value="-P"/>-->
+<!--            <arg value="${scp.port}"/>-->
+<!--            <arg value="${libs}/${war.name}"/>-->
+<!--            <arg value="${scp.user}@${scp.host}:${scp.remote.dir}"/>-->
+<!--        </exec>-->
     </target>
 
     <!-- ========== native2ascii ========== -->
-    <target name="native2ascii" description="Преобразование файлов локализации">
-        <!-- Преобразуем все *.properties из resources.dir (или src.dir) -->
-        <mkdir dir="${build.dir}/resources_native"/>
+    <target name="native2ascii" description="Converting localization files">
+        <mkdir dir="${build.dir}/resources/resources-native"/>
         <native2ascii src="${resources.dir}"
-                      dest="${build.dir}/resources_native"
+                      dest="${build.dir}/resources/resources-native"
                       includes="**/*.properties"
-                      encoding="UTF-8"/>
+                      encoding="UTF-8"
+                      reverse="false"/>
     </target>
 
     <!-- ========== doc ========== -->
-    <target name="doc" description="Добавление MD5 и SHA-1, генерация javadoc">
-        <!-- Расчёт MD5 и SHA-1 для jar (и других файлов) -->
-        <checksum file="${dist.dir}/${jar.name}"
-                  property="jar.checksum"
+    <target name="doc" depends="build" description="Adding MD5 and SHA-1, generating javadoc">
+        <!-- Расчёт MD5 и SHA-1 для jar -->
+        <checksum file="${libs}/${war.name}"
+                  property="war.checksum"
                   algorithm="MD5"/>
-        <checksum file="${dist.dir}/${jar.name}"
-                  property="jar.sha1"
+        <checksum file="${libs}/${war.name}"
+                  property="war.sha1"
                   algorithm="SHA-1"/>
 
-        <!-- Добавляем MD5 и SHA-1 в MANIFEST.MF (дополнительно) -->
-        <jar destfile="${dist.dir}/${jar.name}" update="true">
+        <!-- Добавляем MD5 и SHA-1 в MANIFEST.MF -->
+        <war destfile="${libs}/${war.name}" update="true">
             <manifest>
-                <attribute name="MD5" value="${jar.checksum}"/>
-                <attribute name="SHA-1" value="${jar.sha1}"/>
+                <attribute name="MD5" value="${war.checksum}"/>
+                <attribute name="SHA-1" value="${war.sha1}"/>
             </manifest>
-        </jar>
+        </war>
 
         <!-- Генерация javadoc -->
         <mkdir dir="${doc.dir}"/>
-        <javadoc sourcepath="${src.dir}" destdir="${doc.dir}" classpathref="classpath" packagenames="org.example.**">
+        <javadoc sourcepath="${main.dir}/java" destdir="${doc.dir}" classpathref="classpath" packagenames="org.ren1kron.**">
             <doctitle>${project.name} API</doctitle>
-            <author>true</author>
-            <version>true</version>
         </javadoc>
 
-        <!-- Добавляем javadoc в архив (если нужно) -->
-        <jar destfile="${dist.dir}/${jar.name}" update="true">
+        <!-- Добавляем javadoc в архив -->
+        <jar destfile="${libs}/${war.name}" update="true">
             <fileset dir="${doc.dir}"/>
         </jar>
     </target>
