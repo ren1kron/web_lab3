@@ -1,4 +1,4 @@
-package org.Kostya666.models;
+package org.ren1kron.models;
 
 import jakarta.persistence.*;
 

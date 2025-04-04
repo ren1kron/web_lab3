@@ -1,4 +1,4 @@
-package org.Kostya666.beans;
+package org.ren1kron.beans;
 
 
 import jakarta.faces.view.ViewScoped;

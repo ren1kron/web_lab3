@@ -1,11 +1,11 @@
-package org.Kostya666.dao;
+package org.ren1kron.dao;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.Kostya666.models.Point;
+import org.ren1kron.models.Point;
 
 import java.util.List;
 
