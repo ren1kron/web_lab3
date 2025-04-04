@@ -58,8 +58,9 @@
 
     <!-- ========== clean ========== -->
     <target name="clean" description="Cleaning up compiled classes and temporary files">
-        <delete dir="${build.dir}"/>
-        <delete dir="${libs}"/>
+<!--        <delete dir="${build.dir}"/>-->
+<!--        <delete dir="${libs}"/>-->
+        <delete dir="ant"/>
     </target>
 
     <!-- ========== test ========== -->
@@ -301,39 +302,15 @@
     </target>
 
     <!-- ========== alt ========== -->
-    <target name="alt" description="Создание альтернативной версии программы и упаковка в jar">
-        <!-- Меняем имена классов, переменных и т.д. с помощью replace/replaceregexp -->
-        <mkdir dir="${build.dir}/alt"/>
-
-        <!-- Копируем исходники во временную папку для замены -->
-        <copy todir="${build.dir}/alt">
-            <fileset dir="${src.dir}">
-                <include name="**/*.java"/>
-            </fileset>
-        </copy>
-
-        <!-- Пример замены -->
+    <target name="alt" depends="resolve" description="Creating an alternative version of the program and packaging it into a war">
         <replaceregexp flags="g"
                        match="${replace.regex.oldName}"
                        replace="${replace.regex.newName}">
-            <fileset dir="${build.dir}/alt">
+            <fileset dir="${src.dir}">
                 <include name="**/*.java"/>
             </fileset>
         </replaceregexp>
-
-        <!-- Теперь компилируем уже альтернативные файлы -->
-        <javac srcdir="${build.dir}/alt"
-               destdir="${build.dir}/alt-classes"
-               includeantruntime="false"
-               classpathref="classpath" />
-
-        <!-- Упаковка альтернативной версии в jar, используя цель build (или повторяя её логику) -->
-        <jar destfile="${dist.dir}/${project.name}-alt-${project.version}.jar" basedir="${build.dir}/alt-classes">
-            <manifest>
-                <attribute name="Main-Class" value="${main.class}"/>
-                <attribute name="Implementation-Version" value="${project.version}-alt"/>
-            </manifest>
-        </jar>
+        <antcall target="build"/>
     </target>
 
     <!-- ========== report ========== -->
