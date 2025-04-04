@@ -1,4 +1,4 @@
-package org.Kostya666.beans;
+package org.ren1kron.beans;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
@@ -8,8 +8,8 @@ import jakarta.inject.Named;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.Kostya666.dao.PointDao;
-import org.Kostya666.models.Point;
+import org.ren1kron.dao.PointDao;
+import org.ren1kron.models.Point;
 
 import java.io.Serializable;
 import java.util.ArrayList;

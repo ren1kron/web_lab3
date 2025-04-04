@@ -1,4 +1,4 @@
-package org.Kostya666;
+package org.ren1kron;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -6,8 +6,8 @@ import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.junit.jupiter.api.*;
-import org.Kostya666.dao.PointDao;
-import org.Kostya666.models.Point;
+import org.ren1kron.dao.PointDao;
+import org.ren1kron.models.Point;
 
 public class HibernateExampleTest {
 //    private SessionFactory sessionFactory;

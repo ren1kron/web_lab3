@@ -1,4 +1,4 @@
-package org.Kostya666;
+package org.ren1kron;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.faces.annotation.FacesConfig;
