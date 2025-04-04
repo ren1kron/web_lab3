@@ -172,13 +172,13 @@
     </target>
 
     <!-- ========== team ========== -->
-    <target name="team" description="Получение 2 предыдущих ревизий из git, их сборка и упаковка в zip">
+    <target name="team" description="Getting 2 previous revisions from git, building them and packing them into a zip">
         <!-- Предполагаем, что локальный репозиторий уже клонирован.
              1) Получаем 2 предыдущие ревизии
              2) Собираем их (вызываем цель build)
              3) Упаковываем результат в zip
         -->
-        <echo message="Получение 2 предыдущих ревизий из git..."/>
+        <echo message="Getting 2 previous revisions from git..."/>
         <exec executable="git">
             <arg value="checkout"/>
             <arg value="HEAD~2"/> <!-- переходим на ревизию HEAD~2 -->
@@ -186,7 +186,7 @@
 
         <ant target="build"/>
 
-        <copy file="${dist.dir}/${jar.name}" tofile="${dist.dir}/${jar.name}.rev2"/>
+        <copy file="${libs}/${war.name}" tofile="${libs}/${war.name}.rev2"/>
 
         <exec executable="git">
             <arg value="checkout"/>
@@ -195,16 +195,16 @@
 
         <ant target="build"/>
 
-        <copy file="${dist.dir}/${jar.name}" tofile="${dist.dir}/${jar.name}.rev1"/>
+        <copy file="${libs}/${war.name}" tofile="${libs}/${war.name}.rev1"/>
 
         <exec executable="git">
             <arg value="checkout"/>
-            <arg value="main"/> <!-- возвращаемся на основную ветку или нужную ветку -->
+            <arg value="opi3"/> <!-- возвращаемся на основную ветку или нужную ветку -->
         </exec>
 
-        <!-- Упаковываем обе собранные jar в zip -->
-        <zip destfile="${dist.dir}/team_builds.zip">
-            <fileset dir="${dist.dir}">
+        <!-- Упаковываем обе собранные war в zip -->
+        <zip destfile="${libs}/team_builds.zip">
+            <fileset dir="${libs}">
                 <include name="*.rev1"/>
                 <include name="*.rev2"/>
             </fileset>
@@ -253,7 +253,7 @@
         </if>
     </target>
 
-    <!-- ========== Цель: history ========== -->
+    <!-- ========== history ========== -->
     <target name="history" description="Откат к предыдущим ревизиям, пока не удастся скомпилировать проект">
         <echo message="Пытаемся собрать текущую версию..."/>
 
@@ -292,7 +292,7 @@
         </if>
     </target>
 
-    <!-- ========== Цель: alt ========== -->
+    <!-- ========== alt ========== -->
     <target name="alt" description="Создание альтернативной версии программы и упаковка в jar">
         <!-- Меняем имена классов, переменных и т.д. с помощью replace/replaceregexp -->
         <mkdir dir="${build.dir}/alt"/>
@@ -328,7 +328,7 @@
         </jar>
     </target>
 
-    <!-- ========== Цель: report ========== -->
+    <!-- ========== report ========== -->
     <target name="report" depends="test" description="Сохраняет JUnit-отчёт и делает commit в SVN">
         <!-- Если тесты прошли успешно, сохраняем XML-отчёт и добавляем в SVN -->
         <!-- Допустим, JUnit по умолчанию складывает отчёты в build/junit/ (или другой путь).
@@ -354,7 +354,7 @@
         </exec>
     </target>
 
-    <!-- ========== Цель: env ========== -->
+    <!-- ========== env ========== -->
     <target name="env" description="Сборка и запуск программы в альтернативных окружениях">
         <!-- Предположим, есть несколько версий Java, и мы хотим прогнать программу под всеми -->
         <foreach list="${env.java.versions}" param="java.version" delimiter=",">
