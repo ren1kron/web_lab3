@@ -1,11 +1,16 @@
 <project name="web3" default="compile" basedir="."
          xmlns:ivy="antlib:org.apache.ivy.ant">
 
+    <!-- TODO - музяка
+              - native2ascii
+              - xml
+              - scp
+              -->
     <property file="build.properties"/>
 
 
 
-    <!--    <taskdef name="scp" classname="org.apache.tools.ant.taskdefs.optional.ssh.Scp"-->
+<!--        <taskdef name="scp" classname="org.apache.tools.ant.taskdefs.optional.ssh.Scp"-->
 <!--             classpathref="classpath"/>-->
 
     <!-- ivy -->
@@ -78,28 +83,12 @@
 
     <!-- ========== scp ========== -->
     <target name="scp" depends="build" description="Перемещение собранного проекта по SCP">
-        
-<!--        &lt;!&ndash; Нужно, чтобы Ant умел выполнять scp:-->
-<!--             <taskdef name="scp" classname="org.apache.tools.ant.taskdefs.optional.ssh.Scp"/>-->
-<!--             или использование <exec> со сторонними инструментами scp/pscp. &ndash;&gt;-->
-
-        <classpath>
-
-        </classpath>
-        <!-- Пример через scp Ant (требует дополнительной настройки SSH Tasks for Ant):-->
+        <echo message="Кидаем файлик на гелиос..." />
         <scp file="${libs}/${war.name}"
-             todir="${scp.user}@${scp.host}:${scp.remote.dir}"
-             port="${scp.port}"
+             todir="s409411@helios.cs.ifmo.ru:/home/studs/s409411/zalupa"
+             port="2222"
+             password="your-password"
              trust="true"/>
-
-
-        <!-- Пример через <exec> (если нет SSH-таска): -->
-<!--        <exec executable="scp">-->
-<!--            <arg value="-P"/>-->
-<!--            <arg value="${scp.port}"/>-->
-<!--            <arg value="${libs}/${war.name}"/>-->
-<!--            <arg value="${scp.user}@${scp.host}:${scp.remote.dir}"/>-->
-<!--        </exec>-->
     </target>
 
     <!-- ========== native2ascii ========== -->
