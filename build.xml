@@ -49,12 +49,13 @@
 
     <!-- ========== build ========== -->
     <target name="build" depends="compile" description="Compilation and packaging into war">
-        <mkdir dir="${libs}"/>
+<!--        <mkdir dir=""-->
 <!--        <jar destfile="${dist.dir}/${jar.name}" basedir="${classes}">-->
 <!--            <manifest>-->
 <!--                <attribute name="Implementation-Version" value="${project.version}"/>-->
 <!--            </manifest>-->
 <!--        </jar>-->
+<!--        <copy todir="${build.dir}/"-->
         <war destfile="${libs}/${war.name}" webxml="${web.dir}/WEB-INF/web.xml">
             <classes dir="${classes}"/>
             <fileset dir="${web.dir}"/>
@@ -70,15 +71,16 @@
 
     <!-- ========== test ========== -->
     <target name="test" depends="build" description="Running junit-tests">
-        <junit printsummary="on" haltonfailure="true" haltonerror="true">
+        <mkdir dir="ant/test-results"/>
+        <junit printsummary="on" haltonfailure="true" haltonerror="true" fork="yes" outputtoformatters="ant">
             <classpath>
                 <path refid="classpath"/>
                 <pathelement location="${classes}/java/test"/>
             </classpath>
-            <batchtest fork="yes" todir="${build.dir}/test-results">
-                <formatter type="plain"/>
+            <batchtest>
                 <fileset dir="${test.dir}" includes="*Test.java"/>
             </batchtest>
+            <formatter type="xml"/>
         </junit>
     </target>
 
@@ -290,29 +292,6 @@
         </if>
     </target>
 
-
-<!--    <target name="compile" description="Compiling source codes" depends="resolve">-->
-<!--        <path refid="ivy.classpath"/>-->
-<!--        <mkdir dir="${classes}/java/main"/>-->
-<!--        <mkdir dir="${classes}/java/test"/>-->
-<!--        <javac srcdir="${main.dir}"-->
-<!--               destdir="${classes}/java/main"-->
-<!--               includeantruntime="false"-->
-<!--               classpathref="classpath">-->
-<!--            <compilerarg value="-processor"/>-->
-<!--            <compilerarg value="lombok.launch.AnnotationProcessorHider$AnnotationProcessor"/>-->
-<!--        </javac>-->
-<!--        <javac-->
-<!--                srcdir="${test.dir}"-->
-<!--                destdir="${classes}/java/test"-->
-<!--                includeantruntime="false">-->
-<!--            <classpath>-->
-<!--                <path refid="classpath"/>-->
-<!--                <pathelement location="${classes}/java/main"/>-->
-<!--            </classpath>-->
-<!--        </javac>-->
-<!--        <echo message="PROJECT SUCK_SEX_FULLY COMPILED!!!"/>-->
-<!--    </target>-->
     <!-- ========== alt ========== -->
     <target name="alt" depends="resolve" description="Creating an alternative version of the program and packaging it into a war">
         <mkdir dir="${alt.dir}"/>
@@ -356,10 +335,8 @@
     </target>
 
     <!-- ========== report ========== -->
-    <target name="report" depends="test" description="Saves the JUnit report and commits it to SVN">
-        <!-- Если тесты прошли успешно, сохраняем XML-отчёт и добавляем в SVN -->
-        <!-- Допустим, JUnit по умолчанию складывает отчёты в build/junit/ (или другой путь).
-             Или нужно воспользоваться <formatter> в <junit> -->
+    <target name="report" depends="test" unless="test.failed"
+            description="Saves the JUnit report and commits it to SVN">
         <mkdir dir="${junit-reports.dir}"/>
 
         <copy todir="${junit-reports.dir}">
@@ -368,8 +345,6 @@
             </fileset>
         </copy>
 
-        <!-- Добавляем отчёт в SVN и коммитим -->
-        <!-- Аналогично git, если у вас SVN: -->
         <exec executable="svn">
             <arg value="add"/>
             <arg value="${junit-reports.dir}"/>
@@ -383,11 +358,11 @@
     </target>
 
     <!-- ========== env ========== -->
-    <target name="env" description="Сборка и запуск программы в альтернативных окружениях">
+    <target name="env" depends="compile" description="Сборка и запуск программы в альтернативных окружениях">
         <!-- Предположим, есть несколько версий Java, и мы хотим прогнать программу под всеми -->
         <foreach list="${env.java.versions}" param="java.version" delimiter=",">
             <sequential>
-                <echo message="Запуск под Java ${java.version} с опциями ${env.jvm.args}"/>
+                <echo message="Run under Java ${java.version} with options ${env.jvm.args}"/>
                 <!-- Укажем путь к нужной java, например:
                      /usr/lib/jvm/java-${java.version}/bin/java
                      или, если действительно установлено несколько версий.
