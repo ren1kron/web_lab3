@@ -1,0 +1,5 @@
+org/ren1kron/beans/ClockBean.class
+org/ren1kron/FacesConfiguration.class
+org/ren1kron/models/Point.class
+org/ren1kron/dao/PointDao.class
+org/ren1kron/beans/FormBean.class
