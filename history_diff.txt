@@ -1,0 +1,123 @@
+commit 994703f41a29eeef948c720bf6c6b68a474b7b26
+Author: Kostya666 <eliseevkonstantin306@gmail.com>
+Date:   Fri Apr 4 16:27:04 2025 +0300
+
+    add diff target
+
+diff --git a/build.properties b/build.properties
+index 53500a2..a737024 100644
+--- a/build.properties
++++ b/build.properties
+@@ -36,6 +36,7 @@ git.repo.url=https://github.com/ren1kron/web_lab3.git
+ 
+ # diff parameters
+ diff.critical.classes=org/ren1kron/FacesConfiguration.java
++git.diff.files=${main.dir}/java/org/ren1kron/FacesConfiguration.java
+ 
+ # music parameters
+ music.file=resourses/musicfile.mp3
+diff --git a/build.xml b/build.xml
+index c393665..a9d4254 100644
+--- a/build.xml
++++ b/build.xml
+@@ -3,15 +3,21 @@
+ 
+     <property file="build.properties"/>
+ 
+-<!--    <taskdef name="scp" classname="org.apache.tools.ant.taskdefs.optional.ssh.Scp"-->
++
++
++    <!--    <taskdef name="scp" classname="org.apache.tools.ant.taskdefs.optional.ssh.Scp"-->
+ <!--             classpathref="classpath"/>-->
+ 
+     <!-- ivy -->
+     <target name="resolve" description="resolve dependencies">
+         <ivy:resolve/>
+         <ivy:cachepath pathid="classpath" conf="compile, test"/>
++
++        <taskdef resource="net/sf/antcontrib/antlib.xml" classpathref="classpath"/>
+     </target>
+ 
++
++
+     <!-- ========== compile ========== -->
+     <target name="compile" description="Compiling source codes" depends="resolve">
+         <path refid="ivy.classpath"/>
+@@ -173,11 +179,6 @@
+ 
+     <!-- ========== team ========== -->
+     <target name="team" description="Getting 2 previous revisions from git, building them and packing them into a zip">
+-        <!-- Предполагаем, что локальный репозиторий уже клонирован.
+-             1) Получаем 2 предыдущие ревизии
+-             2) Собираем их (вызываем цель build)
+-             3) Упаковываем результат в zip
+-        -->
+         <echo message="Getting 2 previous revisions from git..."/>
+         <exec executable="git">
+             <arg value="checkout"/>
+@@ -212,7 +213,7 @@
+     </target>
+ 
+     <!-- ========== diff ========== -->
+-    <target name="diff" description="Проверка состояния рабочей копии и commit, если изменения не касаются критичных классов">
++    <target name="diff" depends="resolve" description="Check the state of the working copy and commit if the changes do not affect critical classes">
+         <!-- 1) Проверяем, какие файлы изменены (git status или git diff) -->
+         <exec executable="git">
+             <arg value="diff"/>
+@@ -221,6 +222,7 @@
+             <!-- Сохраняем вывод в свойство -->
+             <redirector outputproperty="git.diff.files"/>
+         </exec>
++        <echo message="Changed files: ${git.diff.files}"/>
+ 
+         <!-- 2) Если в списке нет критичных классов (из build.properties: diff.critical.classes),
+                то делаем commit. Иначе - пропускаем. -->
+@@ -229,26 +231,24 @@
+                 <contains string="${git.diff.files}" substring="${diff.critical.classes}"/>
+             </not>
+         </condition>
+-
+-        <echo message="Изменённые файлы: ${git.diff.files}"/>
+-
+         <echo message="do.commit: ${do.commit}"/>
+ 
+-        <if condition="${do.commit}">
++        <if>
++            <equals arg1="${do.commit}" arg2="true"/>
+             <then>
+-                <echo message="Commit изменений..."/>
++                <echo message="Commit changes..."/>
+                 <exec executable="git">
+                     <arg value="commit"/>
+                     <arg value="-a"/>
+                     <arg value="-m"/>
+-                    <arg value="Автоматический commit"/>
++                    <arg value="Automatic commit"/>
+                 </exec>
+                 <exec executable="git">
+                     <arg value="push"/>
+                 </exec>
+             </then>
+             <else>
+-                <echo message="Изменения затрагивают критичные классы. Commit пропущен."/>
++                <echo message="Changes affect critical classes. Commit skipped."/>
+             </else>
+         </if>
+     </target>
+diff --git a/ivy.xml b/ivy.xml
+index 7aace57..6094f90 100644
+--- a/ivy.xml
++++ b/ivy.xml
+@@ -58,5 +58,11 @@
+              <dependency org="org.junit.jupiter" name="junit-jupiter-api" rev="5.10.0" conf="test->default"/>
+              <dependency org="org.junit.jupiter" name="junit-jupiter-engine" rev="5.10.0" conf="test->default"/>
+         -->
++
++
++
++
++
++        <dependency org="ant-contrib" name="ant-contrib" rev="1.0b3" conf="compile->default"/>
+     </dependencies>
+ </ivy-module>
+\ No newline at end of file

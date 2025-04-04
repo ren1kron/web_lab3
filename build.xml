@@ -254,15 +254,23 @@
     </target>
 
     <!-- ========== history ========== -->
-    <target name="history" description="Откат к предыдущим ревизиям, пока не удастся скомпилировать проект">
-        <echo message="Пытаемся собрать текущую версию..."/>
+    <target name="history" depends="resolve" description="Roll back to previous revisions until the project can be compiled">
+        <echo message="Trying to build the current version..."/>
 
         <!-- Пробуем compile, если неудача - откатываемся -->
-        <ant target="compile" failonerror="false" errorproperty="compile.failed"/>
+        <trycatch>
+            <try>
+                <antcall target="compile"/>
+            </try>
+            <catch>
+                <property name="compile.failed" value="true"/>
+            </catch>
+        </trycatch>
 
-        <if condition="${compile.failed}">
+        <if>
+            <equals arg1="${compile.failed}" arg2="true" />
             <then>
-                <echo message="Сборка не удалась. Переходим к предыдущей ревизии..."/>
+                <echo message="Build failed. Going to previous revision..."/>
                 <exec executable="git">
                     <arg value="checkout"/>
                     <arg value="HEAD~1"/>
@@ -273,13 +281,13 @@
                 <ant target="history"/>
             </then>
             <else>
-                <echo message="Сборка прошла успешно на ревизии:"/>
+                <echo message="The assembly was successful during the revision:"/>
                 <exec executable="git">
                     <arg value="rev-parse"/>
                     <arg value="HEAD"/>
                     <redirector outputproperty="current.sha"/>
                 </exec>
-                <echo message="Текущая ревизия: ${current.sha}"/>
+                <echo message="Current revision: ${current.sha}"/>
 
                 <!-- Формируем файл с результатом diff между этой ревизией
                      и следующей, которая не собиралась -->
