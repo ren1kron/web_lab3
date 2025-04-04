@@ -3,14 +3,20 @@
 
     <property file="build.properties"/>
 
-<!--    <taskdef name="scp" classname="org.apache.tools.ant.taskdefs.optional.ssh.Scp"-->
+
+
+    <!--    <taskdef name="scp" classname="org.apache.tools.ant.taskdefs.optional.ssh.Scp"-->
 <!--             classpathref="classpath"/>-->
 
     <!-- ivy -->
     <target name="resolve" description="resolve dependencies">
         <ivy:resolve/>
         <ivy:cachepath pathid="classpath" conf="compile, test"/>
+
+        <taskdef resource="net/sf/antcontrib/antlib.xml" classpathref="classpath"/>
     </target>
+
+
 
     <!-- ========== compile ========== -->
     <target name="compile" description="Compiling source codes" depends="resolve">
@@ -173,11 +179,6 @@
 
     <!-- ========== team ========== -->
     <target name="team" description="Getting 2 previous revisions from git, building them and packing them into a zip">
-        <!-- Предполагаем, что локальный репозиторий уже клонирован.
-             1) Получаем 2 предыдущие ревизии
-             2) Собираем их (вызываем цель build)
-             3) Упаковываем результат в zip
-        -->
         <echo message="Getting 2 previous revisions from git..."/>
         <exec executable="git">
             <arg value="checkout"/>
@@ -212,7 +213,7 @@
     </target>
 
     <!-- ========== diff ========== -->
-    <target name="diff" description="Проверка состояния рабочей копии и commit, если изменения не касаются критичных классов">
+    <target name="diff" depends="resolve" description="Check the state of the working copy and commit if the changes do not affect critical classes">
         <!-- 1) Проверяем, какие файлы изменены (git status или git diff) -->
         <exec executable="git">
             <arg value="diff"/>
@@ -221,6 +222,7 @@
             <!-- Сохраняем вывод в свойство -->
             <redirector outputproperty="git.diff.files"/>
         </exec>
+        <echo message="Changed files: ${git.diff.files}"/>
 
         <!-- 2) Если в списке нет критичных классов (из build.properties: diff.critical.classes),
                то делаем commit. Иначе - пропускаем. -->
@@ -229,26 +231,24 @@
                 <contains string="${git.diff.files}" substring="${diff.critical.classes}"/>
             </not>
         </condition>
-
-        <echo message="Изменённые файлы: ${git.diff.files}"/>
-
         <echo message="do.commit: ${do.commit}"/>
 
-        <if condition="${do.commit}">
+        <if>
+            <equals arg1="${do.commit}" arg2="true"/>
             <then>
-                <echo message="Commit изменений..."/>
+                <echo message="Commit changes..."/>
                 <exec executable="git">
                     <arg value="commit"/>
                     <arg value="-a"/>
                     <arg value="-m"/>
-                    <arg value="Автоматический commit"/>
+                    <arg value="Automatic commit"/>
                 </exec>
                 <exec executable="git">
                     <arg value="push"/>
                 </exec>
             </then>
             <else>
-                <echo message="Изменения затрагивают критичные классы. Commit пропущен."/>
+                <echo message="Changes affect critical classes. Commit skipped."/>
             </else>
         </if>
     </target>
