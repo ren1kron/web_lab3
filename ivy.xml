@@ -46,7 +46,6 @@
         <!-- postgreSQL -->
         <dependency org="org.postgresql" name="postgresql" rev="42.7.4" conf="runtime->default"/>
 
-<!--        <dependency org="com.jcraft" name="jsch" rev="0.1.55" conf="compile->default"/>-->
 <!--        <dependency org="org.apache.ant" name="ant-jsch" rev="1.10.14" conf="compile->default"/>-->
         <dependency org="com.jcraft" name="jsch" rev="0.1.55" conf="compile->default"/>
 
