@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="maven-antrun-" default="main">
   <target name="main">
-    <antcall target="package" />
-    <scp trust="true" todir="${scp.server}" verbose="true">
-      <fileset dir="D:\projects\web_lab3\target">
-        <include name="lab3-хуй.war" />
+    <xmlvalidate lenient="false">
+      <fileset dir="D:\projects\web_lab3/src/main/resources">
+        <include name="**/*.xml" />
       </fileset>
-    </scp>
+    </xmlvalidate>
   </target>
 </project>

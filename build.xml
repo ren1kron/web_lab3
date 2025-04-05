@@ -1,410 +1,422 @@
-<project name="web3" default="compile" basedir="."
-         xmlns:ivy="antlib:org.apache.ivy.ant">
+    <project name="web3" default="compile" basedir="."
+             xmlns:ivy="antlib:org.apache.ivy.ant">
 
-    <!-- TODO - музяка
-              - native2ascii
-              - xml
-              - scp
-              -->
-    <property file="build.properties"/>
-
-
-
-<!--        <taskdef name="scp" classname="org.apache.tools.ant.taskdefs.optional.ssh.Scp"-->
-<!--             classpathref="classpath"/>-->
-
-    <!-- ivy -->
-    <target name="resolve" description="resolve dependencies">
-        <ivy:resolve/>
-        <ivy:cachepath pathid="classpath" conf="compile, test"/>
-
-        <taskdef resource="net/sf/antcontrib/antlib.xml" classpathref="classpath"/>
-    </target>
+        <!-- TODO - музяка
+                  - native2ascii
+                  - xml
+                  - scp
+                  -->
+        <property file="build.properties"/>
 
 
 
-    <!-- ========== compile ========== -->
-    <target name="compile" description="Compiling source codes" depends="resolve">
-        <path refid="ivy.classpath"/>
-        <mkdir dir="${classes}/java/main"/>
-        <mkdir dir="${classes}/java/test"/>
-        <javac srcdir="${main.dir}"
-               destdir="${classes}/java/main"
-               includeantruntime="false"
-               classpathref="classpath">
-            <compilerarg value="-processor"/>
-            <compilerarg value="lombok.launch.AnnotationProcessorHider$AnnotationProcessor"/>
-        </javac>
-        <javac
-                srcdir="${test.dir}"
-                destdir="${classes}/java/test"
-                includeantruntime="false">
-            <classpath>
-                <path refid="classpath"/>
-                <pathelement location="${classes}/java/main"/>
-            </classpath>
-        </javac>
-        <echo message="PROJECT SUCK_SEX_FULLY COMPILED!!!"/>
-    </target>
+    <!--        <taskdef name="scp" classname="org.apache.tools.ant.taskdefs.optional.ssh.Scp"-->
+    <!--             classpathref="classpath"/>-->
 
-    <!-- ========== build ========== -->
-    <target name="build" depends="compile" description="Compilation and packaging into war">
-<!--        <mkdir dir=""-->
-<!--        <jar destfile="${dist.dir}/${jar.name}" basedir="${classes}">-->
-<!--            <manifest>-->
-<!--                <attribute name="Implementation-Version" value="${project.version}"/>-->
-<!--            </manifest>-->
-<!--        </jar>-->
-<!--        <copy todir="${build.dir}/"-->
-        <war destfile="${libs}/${war.name}" webxml="${web.dir}/WEB-INF/web.xml">
-            <classes dir="${classes}"/>
-            <fileset dir="${web.dir}"/>
-        </war>
-    </target>
+        <!-- ivy -->
+        <target name="resolve" description="resolve dependencies">
+            <ivy:resolve/>
+            <ivy:cachepath pathid="classpath" conf="compile, test"/>
 
-    <!-- ========== clean ========== -->
-    <target name="clean" description="Cleaning up compiled classes and temporary files">
-<!--        <delete dir="${build.dir}"/>-->
-<!--        <delete dir="${libs}"/>-->
-        <delete dir="ant"/>
-    </target>
-
-    <!-- ========== test ========== -->
-    <target name="test" depends="build" description="Running junit-tests">
-        <mkdir dir="ant/test-results"/>
-        <junit printsummary="on" haltonfailure="true" haltonerror="true" fork="yes" outputtoformatters="ant">
-            <classpath>
-                <path refid="classpath"/>
-                <pathelement location="${classes}/java/test"/>
-            </classpath>
-            <batchtest>
-                <fileset dir="${test.dir}" includes="*Test.java"/>
-            </batchtest>
-            <formatter type="xml"/>
-        </junit>
-    </target>
-
-    <!-- ========== scp ========== -->
-    <target name="scp" depends="build" description="Перемещение собранного проекта по SCP">
-        <echo message="Кидаем файлик на гелиос..." />
-        <scp file="${libs}/${war.name}"
-             todir="s409411@helios.cs.ifmo.ru:/home/studs/s409411/zalupa"
-             port="2222"
-             password="your-password"
-             trust="true"/>
-    </target>
-
-    <!-- ========== native2ascii ========== -->
-    <target name="native2ascii" description="Converting localization files">
-        <mkdir dir="${build.dir}/resources/resources-native"/>
-        <native2ascii src="${resources.dir}"
-                      dest="${build.dir}/resources/resources-native"
-                      includes="**/*.properties"
-                      encoding="UTF-8"
-                      reverse="false"/>
-    </target>
-
-    <!-- ========== doc ========== -->
-    <target name="doc" depends="build" description="Adding MD5 and SHA-1, generating javadoc">
-        <!-- Расчёт MD5 и SHA-1 для jar -->
-        <checksum file="${libs}/${war.name}"
-                  property="war.checksum"
-                  algorithm="MD5"/>
-        <checksum file="${libs}/${war.name}"
-                  property="war.sha1"
-                  algorithm="SHA-1"/>
-
-        <!-- Добавляем MD5 и SHA-1 в MANIFEST.MF -->
-        <war destfile="${libs}/${war.name}" update="true">
-            <manifest>
-                <attribute name="MD5" value="${war.checksum}"/>
-                <attribute name="SHA-1" value="${war.sha1}"/>
-            </manifest>
-        </war>
-
-        <!-- Генерация javadoc -->
-        <mkdir dir="${doc.dir}"/>
-        <javadoc sourcepath="${main.dir}/java" destdir="${doc.dir}" classpathref="classpath" packagenames="org.ren1kron.**">
-            <doctitle>${project.name} API</doctitle>
-        </javadoc>
-
-        <!-- Добавляем javadoc в архив -->
-        <jar destfile="${libs}/${war.name}" update="true">
-            <fileset dir="${doc.dir}"/>
-        </jar>
-    </target>
-
-    <!-- ========== xml ========== -->
-    <target name="xml" description="Validate all XML files in a project">
-        <xmlvalidate>
-            <fileset dir="${resources.dir}">
-                <include name="**/*.xml"/>
-            </fileset>
-            <fileset dir="${main.dir}/webapp">
-                <include name="**/*.xml"/>
-            </fileset>
-        </xmlvalidate>
-    </target>
-
-    <!-- ========== music ========== -->
-    <target name="music" depends="build" description="Play music when build is complete">
-        <condition property="isWindows">
-            <os family="windows"/>
-        </condition>
-        <condition property="isMac">
-            <os family="mac"/>
-        </condition>
-
-        <!-- Windows -->
-        <exec executable="cmd" osfamily="windows" failonerror="false">
-            <arg value="/c"/>
-            <arg value="start"/>
-            <arg value=""/>
-            <arg value="${music.file}"/>
-        </exec>
-
-        <!-- macOS -->
-        <exec executable="afplay" osfamily="mac" failonerror="false">
-            <arg value="${music.file}"/>
-        </exec>
-    </target>
-
-    <!-- ========== team ========== -->
-    <target name="team" description="Getting 2 previous revisions from git, building them and packing them into a zip">
-        <echo message="Getting 2 previous revisions from git..."/>
-        <exec executable="git">
-            <arg value="checkout"/>
-            <arg value="HEAD~2"/> <!-- переходим на ревизию HEAD~2 -->
-        </exec>
-
-        <ant target="build"/>
-
-        <copy file="${libs}/${war.name}" tofile="${libs}/${war.name}.rev2"/>
-
-        <exec executable="git">
-            <arg value="checkout"/>
-            <arg value="HEAD@{1}"/> <!-- одна ревизия выше (HEAD~1) -->
-        </exec>
-
-        <ant target="build"/>
-
-        <copy file="${libs}/${war.name}" tofile="${libs}/${war.name}.rev1"/>
-
-        <exec executable="git">
-            <arg value="checkout"/>
-            <arg value="opi3"/> <!-- возвращаемся на основную ветку или нужную ветку -->
-        </exec>
-
-        <!-- Упаковываем обе собранные war в zip -->
-        <zip destfile="${libs}/team_builds.zip">
-            <fileset dir="${libs}">
-                <include name="*.rev1"/>
-                <include name="*.rev2"/>
-            </fileset>
-        </zip>
-    </target>
-
-    <!-- ========== diff ========== -->
-    <target name="diff" depends="resolve" description="Check the state of the working copy and commit if the changes do not affect critical classes">
-        <!-- 1) Проверяем, какие файлы изменены (git status или git diff) -->
-        <exec executable="git">
-            <arg value="diff"/>
-            <arg value="--name-only"/>
-            <arg value="HEAD"/>
-            <!-- Сохраняем вывод в свойство -->
-            <redirector outputproperty="git.diff.files"/>
-        </exec>
-        <echo message="Changed files: ${git.diff.files}"/>
-
-        <!-- 2) Если в списке нет критичных классов (из build.properties: diff.critical.classes),
-               то делаем commit. Иначе - пропускаем. -->
-        <condition property="do.commit">
-            <not>
-                <contains string="${git.diff.files}" substring="${diff.critical.classes}"/>
-            </not>
-        </condition>
-        <echo message="do.commit: ${do.commit}"/>
-
-        <if>
-            <equals arg1="${do.commit}" arg2="true"/>
-            <then>
-                <echo message="Commit changes..."/>
-                <exec executable="git">
-                    <arg value="commit"/>
-                    <arg value="-a"/>
-                    <arg value="-m"/>
-                    <arg value="Automatic commit"/>
-                </exec>
-                <exec executable="git">
-                    <arg value="push"/>
-                </exec>
-            </then>
-            <else>
-                <echo message="Changes affect critical classes. Commit skipped."/>
-            </else>
-        </if>
-    </target>
-
-    <!-- ========== history ========== -->
-    <target name="history" depends="resolve" description="Roll back to previous revisions until the project can be compiled">
-        <echo message="Trying to build the current version..."/>
-
-        <!-- Пробуем compile, если неудача - откатываемся -->
-        <trycatch>
-            <try>
-                <antcall target="compile"/>
-            </try>
-            <catch>
-                <property name="compile.failed" value="true"/>
-            </catch>
-        </trycatch>
-
-        <if>
-            <equals arg1="${compile.failed}" arg2="true" />
-            <then>
-                <echo message="Build failed. Going to previous revision..."/>
-                <exec executable="git">
-                    <arg value="checkout"/>
-                    <arg value="HEAD~1"/>
-                </exec>
-
-                <!-- Рекурсивный вызов той же цели history, пока не соберётся
-                     или пока не достигнем самой первой ревизии -->
-                <ant target="history"/>
-            </then>
-            <else>
-                <echo message="The assembly was successful during the revision:"/>
-                <exec executable="git">
-                    <arg value="rev-parse"/>
-                    <arg value="HEAD"/>
-                    <redirector outputproperty="current.sha"/>
-                </exec>
-                <echo message="Current revision: ${current.sha}"/>
-
-                <!-- Формируем файл с результатом diff между этой ревизией
-                     и следующей, которая не собиралась -->
-                <exec executable="git">
-                    <arg value="show"/>
-                    <arg value="${current.sha}~1..${current.sha}"/>
-                    <redirector output="history_diff.txt"/>
-                </exec>
-            </else>
-        </if>
-    </target>
-
-    <!-- ========== alt ========== -->
-    <target name="alt" depends="resolve" description="Creating an alternative version of the program and packaging it into a war">
-        <mkdir dir="${alt.dir}"/>
-        <mkdir dir="${alt-classes}/java/main"/>
-<!--        <mkdir dir="${alt-classes}/java/test"/>-->
-
-        <copy todir="${alt.dir}">
-            <fileset dir="${src.dir}"/>
-        </copy>
-
-        <replaceregexp flags="g"
-                       match="${replace.regex.oldName}"
-                       replace="${replace.regex.newName}">
-            <fileset dir="${alt.dir}">
-                <include name="**/*.java"/>
-            </fileset>
-        </replaceregexp>
-
-        <javac srcdir="${alt-main.dir}"
-               destdir="${alt-classes}/java/main"
-               includeantruntime="false"
-               classpathref="classpath">
-            <compilerarg value="-processor"/>
-            <compilerarg value="lombok.launch.AnnotationProcessorHider$AnnotationProcessor"/>
-        </javac>
-
-<!--        <javac-->
-<!--                srcdir="${alt-test.dir}"-->
-<!--                destdir="${alt-classes}/java/test"-->
-<!--                includeantruntime="false">-->
-<!--            <classpath>-->
-<!--                <path refid="classpath"/>-->
-<!--                <pathelement location="${alt-classes}/java/test"/>-->
-<!--            </classpath>-->
-<!--        </javac>-->
-
-        <war destfile="${libs}/alt-lab3.war" webxml="${web.dir}/WEB-INF/web.xml">
-            <classes dir="${alt-classes}"/>
-            <fileset dir="${web.dir}"/>
-        </war>
-    </target>
-
-    <!-- ========== report ========== -->
-    <target name="report" depends="test" unless="test.failed"
-            description="Saves the JUnit report and commits it to SVN">
-        <mkdir dir="${junit-reports.dir}"/>
-
-        <copy todir="${junit-reports.dir}">
-            <fileset dir="${build.dir}">
-                <include name="TEST-*.xml"/>
-            </fileset>
-        </copy>
-
-        <exec executable="svn">
-            <arg value="add"/>
-            <arg value="${junit-reports.dir}"/>
-            <arg value="--force"/>
-        </exec>
-        <exec executable="svn">
-            <arg value="commit"/>
-            <arg value="-m"/>
-            <arg value="Add test report"/>
-        </exec>
-    </target>
-
-    <!-- ========== env ========== -->
-    <target name="env" depends="compile" description="Сборка и запуск программы в альтернативных окружениях">
-        <!-- Предположим, есть несколько версий Java, и мы хотим прогнать программу под всеми -->
-        <foreach list="${env.java.versions}" param="java.version" delimiter=",">
-            <sequential>
-                <echo message="Run under Java ${java.version} with options ${env.jvm.args}"/>
-                <!-- Укажем путь к нужной java, например:
-                     /usr/lib/jvm/java-${java.version}/bin/java
-                     или, если действительно установлено несколько версий.
-                -->
-                <exec executable="/usr/lib/jvm/java-${java.version}/bin/java">
-                    <arg line="${env.jvm.args}"/>
-                    <arg value="-jar"/>
-                    <arg value="${dist.dir}/${jar.name}"/>
-                </exec>
-            </sequential>
-        </foreach>
-    </target>
+            <taskdef resource="net/sf/antcontrib/antlib.xml" classpathref="classpath"/>
+        </target>
+        <target name="retrieve" depends="resolve" description="Загрузка зависимостей из Ivy в каталог lib">
+            <ivy:retrieve pattern="lib/[artifact]-[revision]-[classifier].[ext]"/>
+        </target>
 
 
-    <target name="draw_shrek" description="draws shrek">
-        <echo><![CDATA[
-                           ⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣤⣤⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-            ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣀⠀⠀⠀⢀⣴⠟⠉⠀⠀⠀⠈⠻⣦⡀⠀⠀⠀⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-            ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣷⣀⢀⣾⠿⠻⢶⣄⠀⠀⣠⣶⡿⠶⣄⣠⣾⣿⠗⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-            ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⢻⣿⣿⡿⣿⠿⣿⡿⢼⣿⣿⡿⣿⣎⡟⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-            ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⡟⠉⠛⢛⣛⡉⠀⠀⠙⠛⠻⠛⠑⣷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-            ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣿⣧⣤⣴⠿⠿⣷⣤⡤⠴⠖⠳⣄⣀⣹⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-            ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⣿⣀⣟⠻⢦⣀⡀⠀⠀⠀⠀⣀⡈⠻⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-            ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣼⡿⠉⡇⠀⠀⠛⠛⠛⠋⠉⠉⠀⠀⠀⠹⢧⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-            ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⡟⠀⢦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠃⠀⠈⠑⠪⠷⠤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-            ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣾⣿⣿⣿⣦⣼⠛⢦⣤⣄⡀⠀⠀⠀⠀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠑⠢⡀⠀⠀⠀⠀⠀
-            ⠀⠀⠀⠀⠀⠀⠀⢀⣠⠴⠲⠖⠛⠻⣿⡿⠛⠉⠉⠻⠷⣦⣽⠿⠿⠒⠚⠋⠉⠁⡞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⢦⠀⠀⠀⠀
-            ⠀⠀⠀⠀⠀⢀⣾⠛⠁⠀⠀⠀⠀⠀⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠤⠒⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢣⠀⠀⠀
-            ⠀⠀⠀⠀⣰⡿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣑⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⡇⠀⠀
-            ⠀⠀⠀⣰⣿⣁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣾⣧⣄⠀⠀⠀⠀⠀⠀⢳⡀⠀
-            ⠀⠀⠀⣿⡾⢿⣀⢀⣀⣦⣾⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣾⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡰⣫⣿⡿⠟⠻⠶⠀⠀⠀⠀⠀⢳⠀
-            ⠀⠀⢀⣿⣧⡾⣿⣿⣿⣿⣿⡷⣶⣤⡀⠀⠀⠀⠀⠀⠀⠀⢀⡴⢿⣿⣧⠀⡀⠀⢀⣀⣀⢒⣤⣶⣿⣿⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇
-            ⠀⠀⡾⠁⠙⣿⡈⠉⠙⣿⣿⣷⣬⡛⢿⣶⣶⣴⣶⣶⣶⣤⣤⠤⠾⣿⣿⣿⡿⠿⣿⠿⢿⣿⣿⣿⣿⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇
-            ⠀⣸⠃⠀⠀⢸⠃⠀⠀⢸⣿⣿⣿⣿⣿⣿⣷⣾⣿⣿⠟⡉⠀⠀⠀⠈⠙⠛⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇
-            ⠀⣿⠀⠀⢀⡏⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⠿⠿⠛⠛⠉⠁⠀⠀⠀⠀⠀⠉⠠⠿⠟⠻⠟⠋⠉⢿⣿⣦⡀⢰⡀⠀⠀⠀⠀⠀⠀⠁
-            ⢀⣿⡆⢀⡾⠀⠀⠀⠀⣾⠏⢿⣿⣿⣿⣯⣙⢷⡄⠀⠀⠀⠀⠀⢸⡄⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣿⣻⢿⣷⣀⣷⣄⠀⠀⠀⠀⢸⠀
-            ⢸⠃⠠⣼⠃⠀⠀⣠⣾⡟⠀⠈⢿⣿⡿⠿⣿⣿⡿⠿⠿⠿⠷⣄⠈⠿⠛⠻⠶⢶⣄⣀⣀⡠⠈⢛⡿⠃⠈⢿⣿⣿⡿⠀⠀⠀⠀⠀⡀
-            ⠟⠀⠀⢻⣶⣶⣾⣿⡟⠁⠀⠀⢸⣿⢅⠀⠈⣿⡇⠀⠀⠀⠀⠀⣷⠂⠀⠀⠀⠀⠐⠋⠉⠉⠀⢸⠁⠀⠀⠀⢻⣿⠛⠀⠀⠀⠀⢀⠇
-            ⠀⠀⠀⠀⠹⣿⣿⠋⠀⠀⠀⠀⢸⣧⠀⠰⡀⢸⣷⣤⣤⡄⠀⠀⣿⡀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡆⠀⠀⠀⠀⡾⠀⠀⠀⠀⠀⠀⢼⡇
-            ⠀⠀⠀⠀⠀⠙⢻⠄⠀⠀⠀⠀⣿⠉⠀⠀⠈⠓⢯⡉⠉⠉⢱⣶⠏⠙⠛⠚⠁⠀⠀⠀⠀⠀⣼⠇⠀⠀⠀⢀⡇⠀⠀⠀⠀⠀⠀⠀⡇
-            ⠀⠀⠀⠀⠀⠀⠻⠄⠀⠀⠀⢀⣿⠀⢠⡄⠀⠀⠀⣁⠁⡀⠀⢠⠀⠀⠀⠀⠀⠀⠀⠀⢀⣐⡟⠀⠀⠀⠀⢸⡇⠀⠀⠀⠀⠀⠀⢠⡇]]>
-        </echo>
-    </target>
 
-</project>
+        <!-- ========== compile ========== -->
+        <target name="compile" description="Compiling source codes" depends="resolve">
+            <path refid="classpath"/>
+            <mkdir dir="${classes}/java/main"/>
+            <mkdir dir="${classes}/java/test"/>
+            <javac srcdir="${main.dir}"
+                   destdir="${classes}/java/main"
+                   includeantruntime="false"
+                   classpathref="classpath">
+                <compilerarg value="-processor"/>
+                <compilerarg value="lombok.launch.AnnotationProcessorHider$AnnotationProcessor"/>
+            </javac>
+            <javac
+                    srcdir="${test.dir}"
+                    destdir="${classes}/java/test"
+                    includeantruntime="false">
+                <classpath>
+                    <path refid="classpath"/>
+                    <pathelement location="${classes}/java/main"/>
+                </classpath>
+            </javac>
+            <echo message="PROJECT SUCK_SEX_FULLY COMPILED!!!"/>
+        </target>
+
+        <!-- ========== build ========== -->
+        <target name="build" depends="compile,retrieve" description="Compilation and packaging into war">
+    <!--        <mkdir dir=""-->
+    <!--        <jar destfile="${dist.dir}/${jar.name}" basedir="${classes}">-->
+    <!--            <manifest>-->
+    <!--                <attribute name="Implementation-Version" value="${project.version}"/>-->
+    <!--            </manifest>-->
+    <!--        </jar>-->
+    <!--        <copy todir="${build.dir}/"-->
+            <war destfile="${libs}/${war.name}" webxml="${web.dir}/WEB-INF/web.xml">
+                <classes dir="${classes}"/>
+                <fileset dir="${web.dir}"/>
+                <lib dir="lib"/>
+            </war>
+        </target>
+
+        <!-- ========== clean ========== -->
+        <target name="clean" description="Cleaning up compiled classes and temporary files">
+    <!--        <delete dir="${build.dir}"/>-->
+    <!--        <delete dir="${libs}"/>-->
+            <delete dir="ant"/>
+        </target>
+
+        <!-- ========== test ========== -->
+        <target name="test" depends="build" description="Running junit-tests">
+            <mkdir dir="ant/test-results"/>
+            <junit printsummary="yes" haltonfailure="true" haltonerror="true" fork="true">
+                <classpath>
+                    <path refid="classpath"/>
+                    <pathelement location="${classes}/java/test"/>
+                </classpath>
+                <formatter type="xml"/>
+                <batchtest todir="reports">
+    <!--                <fileset dir="${test.dir}" includes="*Test.java"/>-->
+                    <fileset dir="${src.dir}">
+                        <include name="**/*Test.java"/>
+                    </fileset>
+                </batchtest>
+            </junit>
+        </target>
+
+        <!-- ========== scp ========== -->
+        <target name="scp" depends="build" description="Перемещение собранного проекта по SCP">
+            <echo message="Кидаем файлик на гелиос..." />
+            <scp file="${libs}/${war.name}"
+                 todir="s409411@helios.cs.ifmo.ru:/home/studs/s409411/zalupa"
+                 port="2222"
+                 password="your-password"
+                 trust="true"/>
+        </target>
+
+        <!-- ========== native2ascii ========== -->
+        <target name="native2ascii" description="Converting localization files">
+            <mkdir dir="${build.dir}/resources/resources-native"/>
+            <native2ascii src="${resources.dir}"
+                          dest="${build.dir}/resources/resources-native"
+                          includes="**/*.properties"
+                          encoding="UTF-8"
+                          reverse="false"/>
+        </target>
+
+        <!-- ========== doc ========== -->
+        <target name="doc" depends="build" description="Adding MD5 and SHA-1, generating javadoc">
+            <!-- Расчёт MD5 и SHA-1 для jar -->
+            <checksum file="${libs}/${war.name}"
+                      property="war.checksum"
+                      algorithm="MD5"/>
+            <checksum file="${libs}/${war.name}"
+                      property="war.sha1"
+                      algorithm="SHA-1"/>
+
+            <!-- Добавляем MD5 и SHA-1 в MANIFEST.MF -->
+            <war destfile="${libs}/${war.name}" update="true">
+                <manifest>
+                    <attribute name="MD5" value="${war.checksum}"/>
+                    <attribute name="SHA-1" value="${war.sha1}"/>
+                </manifest>
+            </war>
+
+            <!-- Генерация javadoc -->
+            <mkdir dir="${doc.dir}"/>
+            <javadoc sourcepath="${main.dir}/java" destdir="${doc.dir}" classpathref="classpath" packagenames="org.ren1kron.**">
+                <doctitle>${project.name} API</doctitle>
+            </javadoc>
+
+            <!-- Добавляем javadoc в архив -->
+            <jar destfile="${libs}/${war.name}" update="true">
+                <fileset dir="${doc.dir}"/>
+            </jar>
+        </target>
+
+        <!-- ========== xml ========== -->
+        <target name="xml" description="Validate all XML files in a project">
+            <xmlvalidate>
+                <fileset dir="${resources.dir}">
+                    <include name="**/*.xml"/>
+                </fileset>
+                <fileset dir="${main.dir}/webapp">
+                    <include name="**/*.xml"/>
+                </fileset>
+            </xmlvalidate>
+        </target>
+
+        <!-- ========== music ========== -->
+        <target name="music" depends="build" description="Play music when build is complete">
+            <condition property="isWindows">
+                <os family="windows"/>
+            </condition>
+            <condition property="isMac">
+                <os family="mac"/>
+            </condition>
+
+            <!-- Windows -->
+            <exec executable="cmd" osfamily="windows" failonerror="false">
+                <arg value="/c"/>
+                <arg value="start"/>
+                <arg value=""/>
+                <arg value="${music.file}"/>
+            </exec>
+
+            <!-- macOS -->
+            <exec executable="afplay" osfamily="mac" failonerror="false">
+                <arg value="${music.file}"/>
+            </exec>
+        </target>
+
+        <!-- ========== team ========== -->
+        <target name="team" description="Getting 2 previous revisions from git, building them and packing them into a zip">
+            <echo message="Getting 2 previous revisions from git..."/>
+            <exec executable="git">
+                <arg value="checkout"/>
+                <arg value="HEAD~2"/> <!-- переходим на ревизию HEAD~2 -->
+            </exec>
+
+            <ant target="build"/>
+
+            <copy file="${libs}/${war.name}" tofile="${libs}/${war.name}.rev2"/>
+
+            <exec executable="git">
+                <arg value="checkout"/>
+                <arg value="HEAD@{1}"/> <!-- одна ревизия выше (HEAD~1) -->
+            </exec>
+
+            <ant target="build"/>
+
+            <copy file="${libs}/${war.name}" tofile="${libs}/${war.name}.rev1"/>
+
+            <exec executable="git">
+                <arg value="checkout"/>
+                <arg value="opi3"/> <!-- возвращаемся на основную ветку или нужную ветку -->
+            </exec>
+
+            <!-- Упаковываем обе собранные war в zip -->
+            <zip destfile="${libs}/team_builds.zip">
+                <fileset dir="${libs}">
+                    <include name="*.rev1"/>
+                    <include name="*.rev2"/>
+                </fileset>
+            </zip>
+        </target>
+
+        <!-- ========== diff ========== -->
+        <target name="diff" depends="resolve" description="Check the state of the working copy and commit if the changes do not affect critical classes">
+            <!-- 1) Проверяем, какие файлы изменены (git status или git diff) -->
+            <exec executable="git">
+                <arg value="diff"/>
+                <arg value="--name-only"/>
+                <arg value="HEAD"/>
+                <!-- Сохраняем вывод в свойство -->
+                <redirector outputproperty="git.diff.files"/>
+            </exec>
+            <echo message="Changed files: ${git.diff.files}"/>
+
+            <!-- 2) Если в списке нет критичных классов (из build.properties: diff.critical.classes),
+                   то делаем commit. Иначе - пропускаем. -->
+            <condition property="do.commit">
+                <not>
+                    <contains string="${git.diff.files}" substring="${diff.critical.classes}"/>
+                </not>
+            </condition>
+            <echo message="do.commit: ${do.commit}"/>
+
+            <if>
+                <equals arg1="${do.commit}" arg2="true"/>
+                <then>
+                    <echo message="Commit changes..."/>
+                    <exec executable="git">
+                        <arg value="commit"/>
+                        <arg value="-a"/>
+                        <arg value="-m"/>
+                        <arg value="Automatic commit"/>
+                    </exec>
+                    <exec executable="git">
+                        <arg value="push"/>
+                    </exec>
+                </then>
+                <else>
+                    <echo message="Changes affect critical classes. Commit skipped."/>
+                </else>
+            </if>
+        </target>
+
+        <!-- ========== history ========== -->
+        <target name="history" depends="resolve" description="Roll back to previous revisions until the project can be compiled">
+            <echo message="Trying to build the current version..."/>
+
+            <!-- Пробуем compile, если неудача - откатываемся -->
+            <trycatch>
+                <try>
+                    <antcall target="compile"/>
+                </try>
+                <catch>
+                    <property name="compile.failed" value="true"/>
+                </catch>
+            </trycatch>
+
+            <if>
+                <equals arg1="${compile.failed}" arg2="true" />
+                <then>
+                    <echo message="Build failed. Going to previous revision..."/>
+                    <exec executable="git">
+                        <arg value="checkout"/>
+                        <arg value="HEAD~1"/>
+                    </exec>
+
+                    <!-- Рекурсивный вызов той же цели history, пока не соберётся
+                         или пока не достигнем самой первой ревизии -->
+                    <ant target="history"/>
+                </then>
+                <else>
+                    <echo message="The assembly was successful during the revision:"/>
+                    <exec executable="git">
+                        <arg value="rev-parse"/>
+                        <arg value="HEAD"/>
+                        <redirector outputproperty="current.sha"/>
+                    </exec>
+                    <echo message="Current revision: ${current.sha}"/>
+
+                    <!-- Формируем файл с результатом diff между этой ревизией
+                         и следующей, которая не собиралась -->
+                    <exec executable="git">
+                        <arg value="show"/>
+                        <arg value="${current.sha}~1..${current.sha}"/>
+                        <redirector output="history_diff.txt"/>
+                    </exec>
+                </else>
+            </if>
+        </target>
+
+        <!-- ========== alt ========== -->
+        <target name="alt" depends="resolve" description="Creating an alternative version of the program and packaging it into a war">
+            <mkdir dir="${alt.dir}"/>
+            <mkdir dir="${alt-classes}/java/main"/>
+    <!--        <mkdir dir="${alt-classes}/java/test"/>-->
+
+            <copy todir="${alt.dir}">
+                <fileset dir="${src.dir}"/>
+            </copy>
+
+            <replaceregexp flags="g"
+                           match="${replace.regex.oldName}"
+                           replace="${replace.regex.newName}">
+                <fileset dir="${alt.dir}">
+                    <include name="**/*.java"/>
+                </fileset>
+            </replaceregexp>
+
+            <javac srcdir="${alt-main.dir}"
+                   destdir="${alt-classes}/java/main"
+                   includeantruntime="false"
+                   classpathref="classpath">
+                <compilerarg value="-processor"/>
+                <compilerarg value="lombok.launch.AnnotationProcessorHider$AnnotationProcessor"/>
+            </javac>
+
+    <!--        <javac-->
+    <!--                srcdir="${alt-test.dir}"-->
+    <!--                destdir="${alt-classes}/java/test"-->
+    <!--                includeantruntime="false">-->
+    <!--            <classpath>-->
+    <!--                <path refid="classpath"/>-->
+    <!--                <pathelement location="${alt-classes}/java/test"/>-->
+    <!--            </classpath>-->
+    <!--        </javac>-->
+
+            <war destfile="${libs}/alt-lab3.war" webxml="${web.dir}/WEB-INF/web.xml">
+                <classes dir="${alt-classes}"/>
+                <fileset dir="${web.dir}"/>
+            </war>
+        </target>
+
+        <!-- ========== report ========== -->
+        <target name="report" depends="test" unless="test.failed" description="Saves the JUnit report and commits it to SVN">
+            <mkdir dir="${junit-reports.dir}"/>
+
+            <junitreport todir="reports">
+                <fileset dir="reports">
+                    <include name="TEST-*.xml"/>
+                </fileset>
+            </junitreport>
+
+            <copy todir="${junit-reports.dir}">
+                <fileset dir="${build.dir}">
+                    <include name="TEST-*.xml"/>
+                </fileset>
+            </copy>
+
+            <exec executable="svn">
+                <arg value="add"/>
+                <arg value="${junit-reports.dir}"/>
+                <arg value="--force"/>
+            </exec>
+            <exec executable="svn">
+                <arg value="commit"/>
+                <arg value="-m"/>
+                <arg value="Add test report"/>
+            </exec>
+        </target>
+
+        <!-- ========== env ========== -->
+        <target name="env" depends="compile" description="Сборка и запуск программы в альтернативных окружениях">
+            <!-- Предположим, есть несколько версий Java, и мы хотим прогнать программу под всеми -->
+            <foreach list="${env.java.versions}" param="java.version" delimiter=",">
+                <sequential>
+                    <echo message="Run under Java ${java.version} with options ${env.jvm.args}"/>
+                    <!-- Укажем путь к нужной java, например:
+                         /usr/lib/jvm/java-${java.version}/bin/java
+                         или, если действительно установлено несколько версий.
+                    -->
+                    <exec executable="/usr/lib/jvm/java-${java.version}/bin/java">
+                        <arg line="${env.jvm.args}"/>
+                        <arg value="-jar"/>
+                        <arg value="${dist.dir}/${jar.name}"/>
+                    </exec>
+                </sequential>
+            </foreach>
+        </target>
+
+
+        <target name="draw_shrek" description="draws shrek">
+            <echo><![CDATA[
+                               ⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣤⣤⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣀⠀⠀⠀⢀⣴⠟⠉⠀⠀⠀⠈⠻⣦⡀⠀⠀⠀⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣷⣀⢀⣾⠿⠻⢶⣄⠀⠀⣠⣶⡿⠶⣄⣠⣾⣿⠗⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⢻⣿⣿⡿⣿⠿⣿⡿⢼⣿⣿⡿⣿⣎⡟⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⡟⠉⠛⢛⣛⡉⠀⠀⠙⠛⠻⠛⠑⣷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣿⣧⣤⣴⠿⠿⣷⣤⡤⠴⠖⠳⣄⣀⣹⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⣿⣀⣟⠻⢦⣀⡀⠀⠀⠀⠀⣀⡈⠻⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣼⡿⠉⡇⠀⠀⠛⠛⠛⠋⠉⠉⠀⠀⠀⠹⢧⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⡟⠀⢦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠃⠀⠈⠑⠪⠷⠤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣾⣿⣿⣿⣦⣼⠛⢦⣤⣄⡀⠀⠀⠀⠀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠑⠢⡀⠀⠀⠀⠀⠀
+                ⠀⠀⠀⠀⠀⠀⠀⢀⣠⠴⠲⠖⠛⠻⣿⡿⠛⠉⠉⠻⠷⣦⣽⠿⠿⠒⠚⠋⠉⠁⡞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⢦⠀⠀⠀⠀
+                ⠀⠀⠀⠀⠀⢀⣾⠛⠁⠀⠀⠀⠀⠀⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠤⠒⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢣⠀⠀⠀
+                ⠀⠀⠀⠀⣰⡿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣑⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⡇⠀⠀
+                ⠀⠀⠀⣰⣿⣁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣾⣧⣄⠀⠀⠀⠀⠀⠀⢳⡀⠀
+                ⠀⠀⠀⣿⡾⢿⣀⢀⣀⣦⣾⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣾⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡰⣫⣿⡿⠟⠻⠶⠀⠀⠀⠀⠀⢳⠀
+                ⠀⠀⢀⣿⣧⡾⣿⣿⣿⣿⣿⡷⣶⣤⡀⠀⠀⠀⠀⠀⠀⠀⢀⡴⢿⣿⣧⠀⡀⠀⢀⣀⣀⢒⣤⣶⣿⣿⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇
+                ⠀⠀⡾⠁⠙⣿⡈⠉⠙⣿⣿⣷⣬⡛⢿⣶⣶⣴⣶⣶⣶⣤⣤⠤⠾⣿⣿⣿⡿⠿⣿⠿⢿⣿⣿⣿⣿⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇
+                ⠀⣸⠃⠀⠀⢸⠃⠀⠀⢸⣿⣿⣿⣿⣿⣿⣷⣾⣿⣿⠟⡉⠀⠀⠀⠈⠙⠛⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇
+                ⠀⣿⠀⠀⢀⡏⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⠿⠿⠛⠛⠉⠁⠀⠀⠀⠀⠀⠉⠠⠿⠟⠻⠟⠋⠉⢿⣿⣦⡀⢰⡀⠀⠀⠀⠀⠀⠀⠁
+                ⢀⣿⡆⢀⡾⠀⠀⠀⠀⣾⠏⢿⣿⣿⣿⣯⣙⢷⡄⠀⠀⠀⠀⠀⢸⡄⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣿⣻⢿⣷⣀⣷⣄⠀⠀⠀⠀⢸⠀
+                ⢸⠃⠠⣼⠃⠀⠀⣠⣾⡟⠀⠈⢿⣿⡿⠿⣿⣿⡿⠿⠿⠿⠷⣄⠈⠿⠛⠻⠶⢶⣄⣀⣀⡠⠈⢛⡿⠃⠈⢿⣿⣿⡿⠀⠀⠀⠀⠀⡀
+                ⠟⠀⠀⢻⣶⣶⣾⣿⡟⠁⠀⠀⢸⣿⢅⠀⠈⣿⡇⠀⠀⠀⠀⠀⣷⠂⠀⠀⠀⠀⠐⠋⠉⠉⠀⢸⠁⠀⠀⠀⢻⣿⠛⠀⠀⠀⠀⢀⠇
+                ⠀⠀⠀⠀⠹⣿⣿⠋⠀⠀⠀⠀⢸⣧⠀⠰⡀⢸⣷⣤⣤⡄⠀⠀⣿⡀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡆⠀⠀⠀⠀⡾⠀⠀⠀⠀⠀⠀⢼⡇
+                ⠀⠀⠀⠀⠀⠙⢻⠄⠀⠀⠀⠀⣿⠉⠀⠀⠈⠓⢯⡉⠉⠉⢱⣶⠏⠙⠛⠚⠁⠀⠀⠀⠀⠀⣼⠇⠀⠀⠀⢀⡇⠀⠀⠀⠀⠀⠀⠀⡇
+                ⠀⠀⠀⠀⠀⠀⠻⠄⠀⠀⠀⢀⣿⠀⢠⡄⠀⠀⠀⣁⠁⡀⠀⢠⠀⠀⠀⠀⠀⠀⠀⠀⢀⣐⡟⠀⠀⠀⠀⢸⡇⠀⠀⠀⠀⠀⠀⢠⡇]]>
+            </echo>
+        </target>
+
+    </project>
