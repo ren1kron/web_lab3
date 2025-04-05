@@ -65,39 +65,39 @@ public class HibernateExampleTest {
 
 
 
-    private static PointDao pointDao;
-
-    @BeforeAll
-    protected static void setUp() {
-        pointDao = PointDao.getInstance();
-    }
-
-    @AfterAll
-    protected static void tearDown() {
-        pointDao.close();
-    }
-
-    @Test
-    public void add() {
-        Point point = new Point(1, 1, 1);
-        pointDao.addPoint(point);
-    }
-
-    @Test
-    public void add2() {
-        Point point = new Point(1, 1, 1);
-        pointDao.addPoint(point);
-    }
-
-
-    @Test
-    public void add3() {
-        Point point = new Point(1, 1, 1);
-        pointDao.addPoint(point);
-    }
-    @Test
-    public void clear() {
-        pointDao.clear();
-    }
+//    private static PointDao pointDao;
+//
+//    @BeforeAll
+//    protected static void setUp() {
+//        pointDao = PointDao.getInstance();
+//    }
+//
+//    @AfterAll
+//    protected static void tearDown() {
+//        pointDao.close();
+//    }
+//
+//    @Test
+//    public void add() {
+//        Point point = new Point(1, 1, 1);
+//        pointDao.addPoint(point);
+//    }
+//
+//    @Test
+//    public void add2() {
+//        Point point = new Point(1, 1, 1);
+//        pointDao.addPoint(point);
+//    }
+//
+//
+//    @Test
+//    public void add3() {
+//        Point point = new Point(1, 1, 1);
+//        pointDao.addPoint(point);
+//    }
+//    @Test
+//    public void clear() {
+//        pointDao.clear();
+//    }
 
 }

@@ -1,4 +1,3 @@
-deploy.bat
 .gradle
 ant/
 build/
@@ -49,3 +48,4 @@ bin/
 ### Custom ###
 deploy.sh
 clean_deploy.sh
+deploy.bat
