@@ -121,6 +121,7 @@
 
 
         <!-- ========== scp ========== -->
+        <!-- WORKS -->
         <target name="scp" depends="build" description="Перемещение собранного проекта по SCP">
             <echo message="Кидаем файлик на гелиос..." />
             <scp file="${libs}/${war.name}"
@@ -131,6 +132,7 @@
         </target>
 
         <!-- ========== native2ascii ========== -->
+        <!-- WORKS -->
         <target name="native2ascii" description="Converting localization files">
             <mkdir dir="${build.dir}/resources/resources-native"/>
             <native2ascii src="${resources.dir}"

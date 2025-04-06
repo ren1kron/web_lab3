@@ -61,6 +61,7 @@ public class PointCalculateTest {
     @Test
     public void testMiss() {
         Point point = new Point(3, 3, 2);
+//        Point point = new Point(1, 0, 2);
         assertFalse(point.isHit(), "Точка (3,3) при r=2 не должна попадать ни в одну из областей");
     }
 }
