@@ -143,6 +143,7 @@
         </target>
 
         <!-- ========== doc ========== -->
+        <!-- не тестил -->
         <target name="doc" depends="build" description="Adding MD5 and SHA-1, generating javadoc">
             <!-- Расчёт MD5 и SHA-1 для jar -->
             <checksum file="${libs}/${war.name}"
@@ -173,6 +174,7 @@
         </target>
 
         <!-- ========== xml ========== -->
+        <!-- WORKS -->
         <target name="xml" description="Validate all XML files in a project">
             <xmlvalidate>
                 <fileset dir="${resources.dir}">
@@ -188,6 +190,8 @@
         </target>
 
         <!-- ========== music ========== -->
+        <!-- WORKS -->
+        <!-- TODO ОБЯЗАТЕЛЬНО ПОМЕНЯТЬ MP3. Я ночью чуть не обосрался. Костя, ты - еблан -->
         <target name="music" depends="build" description="Play music when build is complete">
             <condition property="isWindows">
                 <os family="windows"/>
