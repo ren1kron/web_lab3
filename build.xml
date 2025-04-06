@@ -132,7 +132,7 @@
         </target>
 
         <!-- ========== native2ascii ========== -->
-        <!-- WORKS -->
+        <!-- TODO я не понимаю, почему ru проперти постоянно заполняется "?" и как затестить работоспособность сделанных проперти. Но локализацию я добавил, она теперь работает -->
         <target name="native2ascii" description="Converting localization files">
             <mkdir dir="${build.dir}/resources/resources-native"/>
             <native2ascii src="${resources.dir}"
@@ -215,6 +215,7 @@
         </target>
 
         <!-- ========== team ========== -->
+        <!-- внешне работает, надо будет war-ники запустить и протестить -->
         <target name="team" description="Getting 2 previous revisions from git, building them and packing them into a zip">
             <echo message="Getting 2 previous revisions from git..."/>
             <exec executable="git">
@@ -250,6 +251,7 @@
         </target>
 
         <!-- ========== diff ========== -->
+        <!-- походу не работает -->
         <target name="diff" depends="resolve" description="Check the state of the working copy and commit if the changes do not affect critical classes">
             <!-- 1) Проверяем, какие файлы изменены (git status или git diff) -->
             <exec executable="git">
@@ -291,6 +293,7 @@
         </target>
 
         <!-- ========== history ========== -->
+        <!-- не тестил -->
         <target name="history" depends="resolve" description="Roll back to previous revisions until the project can be compiled">
             <echo message="Trying to build the current version..."/>
 
@@ -338,6 +341,7 @@
         </target>
 
         <!-- ========== alt ========== -->
+        <!-- не тестил -->
         <target name="alt" depends="resolve" description="Creating an alternative version of the program and packaging it into a war">
             <mkdir dir="${alt.dir}"/>
             <mkdir dir="${alt-classes}/java/main"/>
@@ -380,6 +384,7 @@
         </target>
 
         <!-- ========== report ========== -->
+        <!-- не тестил, 100% уверен - не работает -->
         <target name="report" depends="test" unless="test.failed" description="Saves the JUnit report and commits it to SVN">
             <mkdir dir="${junit-reports.dir}"/>
 
@@ -408,6 +413,7 @@
         </target>
 
         <!-- ========== env ========== -->
+        <!-- не тестил -->
         <target name="env" depends="compile" description="Сборка и запуск программы в альтернативных окружениях">
             <!-- Предположим, есть несколько версий Java, и мы хотим прогнать программу под всеми -->
             <foreach list="${env.java.versions}" param="java.version" delimiter=",">
@@ -427,6 +433,9 @@
         </target>
 
 
+        <!-- ART TARGETS -->
+        <!-- как всегда, изумителен -->
+        <!-- TODO впихнуть куда-то шрекс))) -->
         <target name="draw_shrek" description="draws shrek">
             <echo><![CDATA[
                                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣤⣤⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
