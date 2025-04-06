@@ -6,21 +6,27 @@
                   - xml
                   - scp
                   -->
+
+        <!-- основной проперти -->
         <property file="build.properties"/>
+        <!-- проперти с чувствительной инфой (там можно задать свои переменные для scp на гелиос) -->
+        <property file="secret.properties"/>
 
 
 
-    <!--        <taskdef name="scp" classname="org.apache.tools.ant.taskdefs.optional.ssh.Scp"-->
-    <!--             classpathref="classpath"/>-->
 
-        <!-- ivy -->
-        <target name="resolve" description="resolve dependencies">
+        <!-- ==========================================================
+         Определение зависимостей с Ivy
+         ========================================================== -->
+        <target name="resolve" description="(admin target) запускает внутрянку ivy">
             <ivy:resolve/>
             <ivy:cachepath pathid="classpath" conf="compile, test"/>
 
             <taskdef resource="net/sf/antcontrib/antlib.xml" classpathref="classpath"/>
         </target>
-        <target name="retrieve" depends="resolve" description="Загрузка зависимостей из Ivy в каталог lib">
+
+        <!-- Загрузка (retrieve) зависимостей Ivy в каталог lib -->
+        <target name="retrieve" depends="resolve" description="(admin target) грузит зависимости из ivy в каталог lib">
             <ivy:retrieve pattern="lib/[artifact]-[revision]-[classifier].[ext]"/>
         </target>
 
@@ -29,8 +35,11 @@
         <!-- ========== compile ========== -->
         <target name="compile" description="Compiling source codes" depends="resolve">
             <path refid="classpath"/>
+            <!-- создаём каталоги для компиляции-->
             <mkdir dir="${classes}/java/main"/>
             <mkdir dir="${classes}/java/test"/>
+
+            <!-- компилим базу-->
             <javac srcdir="${main.dir}"
                    destdir="${classes}/java/main"
                    includeantruntime="false"
@@ -40,6 +49,7 @@
                 <compilerarg value="-processor"/>
                 <compilerarg value="lombok.launch.AnnotationProcessorHider$AnnotationProcessor"/>
             </javac>
+            <!-- компилим тесты-->
             <javac
                     srcdir="${test.dir}"
                     destdir="${classes}/java/test"
@@ -51,18 +61,12 @@
                     <pathelement location="${classes}/java/main"/>
                 </classpath>
             </javac>
+
             <echo message="PROJECT SUCK_SEX_FULLY COMPILED!!!"/>
         </target>
 
         <!-- ========== build ========== -->
         <target name="build" depends="compile,retrieve" description="Compilation and packaging into war">
-    <!--        <mkdir dir=""-->
-    <!--        <jar destfile="${dist.dir}/${jar.name}" basedir="${classes}">-->
-    <!--            <manifest>-->
-    <!--                <attribute name="Implementation-Version" value="${project.version}"/>-->
-    <!--            </manifest>-->
-    <!--        </jar>-->
-    <!--        <copy todir="${build.dir}/"-->
             <copy todir="${classes}/java/main">
                 <fileset dir="${resources.dir}"/>
             </copy>
@@ -77,9 +81,8 @@
 
         <!-- ========== clean ========== -->
         <target name="clean" description="Cleaning up compiled classes and temporary files">
-    <!--        <delete dir="${build.dir}"/>-->
+            <delete dir="${build.dir}"/>
     <!--        <delete dir="${libs}"/>-->
-            <delete dir="ant"/>
         </target>
 
         <!-- ========== test ========== -->
@@ -104,9 +107,9 @@
         <target name="scp" depends="build" description="Перемещение собранного проекта по SCP">
             <echo message="Кидаем файлик на гелиос..." />
             <scp file="${libs}/${war.name}"
-                 todir="s409411@helios.cs.ifmo.ru:/home/studs/s409411/zalupa"
+                 todir="${scp.username}@helios.cs.ifmo.ru:/home/studs/${scp.username}/zalupa"
                  port="2222"
-                 password="your-password"
+                 password="${scp.password}"
                  trust="true"/>
         </target>
 
