@@ -1,4 +1,4 @@
-    <project name="web3" default="compile" basedir="."
+    <project name="web3" default="build" basedir="."
              xmlns:ivy="antlib:org.apache.ivy.ant">
 
         <!-- TODO - музяка
@@ -34,14 +34,18 @@
             <javac srcdir="${main.dir}"
                    destdir="${classes}/java/main"
                    includeantruntime="false"
-                   classpathref="classpath">
+                   classpathref="classpath"
+                   target="17"
+                   source="17">
                 <compilerarg value="-processor"/>
                 <compilerarg value="lombok.launch.AnnotationProcessorHider$AnnotationProcessor"/>
             </javac>
             <javac
                     srcdir="${test.dir}"
                     destdir="${classes}/java/test"
-                    includeantruntime="false">
+                    includeantruntime="false"
+                    target="17"
+                    source="17">
                 <classpath>
                     <path refid="classpath"/>
                     <pathelement location="${classes}/java/main"/>
@@ -59,10 +63,15 @@
     <!--            </manifest>-->
     <!--        </jar>-->
     <!--        <copy todir="${build.dir}/"-->
+            <copy todir="${classes}/java/main">
+                <fileset dir="${resources.dir}"/>
+            </copy>
             <war destfile="${libs}/${war.name}" webxml="${web.dir}/WEB-INF/web.xml">
-                <classes dir="${classes}"/>
+                <classes dir="${classes}/java/main"/>
                 <fileset dir="${web.dir}"/>
-                <lib dir="lib"/>
+                <lib dir="lib">
+                    <exclude name="jakarta.jakartaee-*.jar"/>
+                </lib>
             </war>
         </target>
 
