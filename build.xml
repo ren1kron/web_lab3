@@ -13,6 +13,18 @@
         <property file="secret.properties"/>
 
 
+        <!-- Определяем отдельный classpath для тестов, исключая конфликтующий ant -->
+        <path id="test.classpath">
+            <!-- Каталоги с скомпилированными классами -->
+            <pathelement location="${classes}/java/main"/>
+            <pathelement location="${classes}/java/test"/>
+            <!-- Библиотеки из lib, кроме тех, что начинаются на ant- -->
+            <fileset dir="ant/lib">
+                <include name="*.jar"/>
+                <exclude name="ant-*.jar"/>
+            </fileset>
+        </path>
+
 
 
         <!-- ==========================================================
@@ -27,12 +39,14 @@
 
         <!-- Загрузка (retrieve) зависимостей Ivy в каталог lib -->
         <target name="retrieve" depends="resolve" description="(admin target) грузит зависимости из ivy в каталог lib">
-            <ivy:retrieve pattern="lib/[artifact]-[revision]-[classifier].[ext]"/>
+            <mkdir dir="lib"/>
+            <ivy:retrieve pattern="ant/lib/[artifact]-[revision].[ext]"/>
         </target>
 
 
 
         <!-- ========== compile ========== -->
+        <!-- works -->
         <target name="compile" description="Compiling source codes" depends="resolve">
             <path refid="classpath"/>
             <!-- создаём каталоги для компиляции-->
@@ -66,6 +80,7 @@
         </target>
 
         <!-- ========== build ========== -->
+        <!-- works -->
         <target name="build" depends="compile,retrieve" description="Compilation and packaging into war">
             <copy todir="${classes}/java/main">
                 <fileset dir="${resources.dir}"/>
@@ -80,28 +95,30 @@
         </target>
 
         <!-- ========== clean ========== -->
+        <!-- works -->
         <target name="clean" description="Cleaning up compiled classes and temporary files">
             <delete dir="${build.dir}"/>
+            <delete dir="lib"/>
     <!--        <delete dir="${libs}"/>-->
         </target>
 
-        <!-- ========== test ========== -->
-        <target name="test" depends="build" description="Running junit-tests">
-            <mkdir dir="ant/test-results"/>
-            <junit printsummary="yes" haltonfailure="true" haltonerror="true" fork="true">
-                <classpath>
-                    <path refid="classpath"/>
-                    <pathelement location="${classes}/java/test"/>
-                </classpath>
-                <formatter type="xml"/>
-                <batchtest todir="reports">
-    <!--                <fileset dir="${test.dir}" includes="*Test.java"/>-->
-                    <fileset dir="${src.dir}">
-                        <include name="**/*Test.java"/>
+        <target name="test" depends="build" description="Run JUnit 5 tests">
+            <junitlauncher haltOnFailure="true" printSummary="true">
+                <!-- Используем определённый classpath для тестов -->
+                <classpath refid="test.classpath"/>
+                <testclasses outputdir="build/test-report">
+                    <fileset dir="${classes}/java/test">
+                        <!-- Указываем шаблоны для поиска классов с тестами -->
+                        <include name="**/*Test.class"/>
                     </fileset>
-                </batchtest>
-            </junit>
+                    <!-- Добавляем слушатели для формирования отчетов -->
+                    <listener type="legacy-xml" sendSysOut="true" sendSysErr="true"/>
+                    <listener type="legacy-plain" sendSysOut="true"/>
+                </testclasses>
+            </junitlauncher>
         </target>
+
+
 
         <!-- ========== scp ========== -->
         <target name="scp" depends="build" description="Перемещение собранного проекта по SCP">
