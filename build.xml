@@ -39,7 +39,7 @@
 
         <!-- Загрузка (retrieve) зависимостей Ivy в каталог lib -->
         <target name="retrieve" depends="resolve" description="(admin target) грузит зависимости из ivy в каталог lib">
-            <mkdir dir="lib"/>
+            <mkdir dir="ant/lib"/>
             <ivy:retrieve pattern="ant/lib/[artifact]-[revision].[ext]"/>
         </target>
 
@@ -98,7 +98,7 @@
         <!-- works -->
         <target name="clean" description="Cleaning up compiled classes and temporary files">
             <delete dir="${build.dir}"/>
-            <delete dir="lib"/>
+            <delete dir="ant/lib"/>
     <!--        <delete dir="${libs}"/>-->
         </target>
 
