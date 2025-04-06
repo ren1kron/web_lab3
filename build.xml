@@ -88,7 +88,7 @@
             <war destfile="${libs}/${war.name}" webxml="${web.dir}/WEB-INF/web.xml">
                 <classes dir="${classes}/java/main"/>
                 <fileset dir="${web.dir}"/>
-                <lib dir="lib">
+                <lib dir="ant/lib">
                     <exclude name="jakarta.jakartaee-*.jar"/>
                 </lib>
             </war>
