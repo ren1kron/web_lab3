@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 commit b989e55e2a3aa37faf0c492ff97c73dfe32bd3b9
 Author: Kostya666 <eliseevkonstantin306@gmail.com>
 Date:   Mon Apr 7 12:35:11 2025 +0300
@@ -2025,3 +2026,118 @@ index f0baddb..b080e4b 100644
    </properties>
    <testcase classname="test.java.org.ren1kron.HibernateExampleTest" name="BeforeFirstTest" time="0.0">
      <error message="Forked Java VM exited abnormally. Please note the time in the report does not reflect the time until the VM exit." type="junit.framework.AssertionFailedError">junit.framework.AssertionFailedError: Forked Java VM exited abnormally. Please note the time in the report does not reflect the time until the VM exit.
+=======
+commit 8cec15ba9cd580e317a4baaacf095141a60ee291
+Author: ren1kron <aleksy.pro35@gmail.com>
+Date:   Mon Apr 7 13:45:31 2025 +0300
+
+    feat: add env and fix diff
+
+diff --git a/build.properties b/build.properties
+index 38899dc..67a83b4 100644
+--- a/build.properties
++++ b/build.properties
+@@ -1,3 +1,9 @@
++vm.args=
++compile.version=17
++
++scp.dir=/opt/tomee/webapps
++env.script=/opt/tomee/bin/catalina.sh run
++
+ project.name=web3
+ project.version=1.0
+ 
+diff --git a/build.xml b/build.xml
+index a68f395..94b4498 100644
+--- a/build.xml
++++ b/build.xml
+@@ -201,6 +201,7 @@
+                 <os family="mac"/>
+             </condition>
+ 
++            <antcall target="draw_shrek"/>
+             <!-- Windows -->
+             <exec executable="cmd" osfamily="windows" failonerror="false">
+                 <arg value="/c"/>
+@@ -216,7 +217,7 @@
+         </target>
+ 
+         <!-- ========== team ========== -->
+-        <!-- внешне работает, надо будет war-ники запустить и протестить -->
++        <!-- WORKS (i believe...) -->
+         <target name="team" description="Getting 2 previous revisions from git, building them and packing them into a zip">
+             <echo message="Getting 2 previous revisions from git..."/>
+             <exec executable="git">
+@@ -252,7 +253,7 @@
+         </target>
+ 
+         <!-- ========== diff ========== -->
+-        <!-- походу не работает -->
++        <!-- FIXED!!! -->
+         <target name="diff" depends="resolve" description="Check the state of the working copy and commit if the changes do not affect critical classes">
+             <!-- 1) Проверяем, какие файлы изменены (git status или git diff) -->
+             <exec executable="git">
+@@ -415,26 +416,45 @@
+ 
+ 
+         <!-- ========== env ========== -->
+-        <!-- не тестил -->
+-        <target name="env" depends="compile" description="Сборка и запуск программы в альтернативных окружениях">
+-            <!-- Предположим, есть несколько версий Java, и мы хотим прогнать программу под всеми -->
+-            <foreach list="${env.java.versions}" param="java.version" delimiter=",">
+-                <sequential>
+-                    <echo message="Run under Java ${java.version} with options ${env.jvm.args}"/>
+-                    <!-- Укажем путь к нужной java, например:
+-                         /usr/lib/jvm/java-${java.version}/bin/java
+-                         или, если действительно установлено несколько версий.
+-                    -->
+-                    <exec executable="/usr/lib/jvm/java-${java.version}/bin/java">
+-                        <arg line="${env.jvm.args}"/>
+-                        <arg value="-jar"/>
+-                        <arg value="${dist.dir}/${jar.name}"/>
+-                    </exec>
+-                </sequential>
+-            </foreach>
++        <!-- WORKS!!! -->
++        <target name="env" depends="clean, resolve">
++            <echo message="***** ENV STARTED *****"/>
++
++            <path refid="classpath"/>
++
++            <mkdir dir="${classes}/java/main"/>
++            <javac srcdir="${main.dir}"
++                   destdir="${classes}/java/main"
++                   includeantruntime="false"
++                   classpathref="classpath"
++                   target="${compile.version}"
++                   source="${compile.version}">
++                <compilerarg value="-processor"/>
++                <compilerarg value="lombok.launch.AnnotationProcessorHider$AnnotationProcessor"/>
++            </javac>
++
++
++            <antcall target="retrieve"/>
++            <copy todir="${classes}/java/main">
++                <fileset dir="${resources.dir}"/>
++            </copy>
++            <war destfile="${libs}/${war.name}" webxml="${web.dir}/WEB-INF/web.xml">
++                <classes dir="${classes}/java/main"/>
++                <fileset dir="${web.dir}"/>
++                <lib dir="ant/lib">
++                    <exclude name="jakarta.jakartaee-*.jar"/>
++                </lib>
++            </war>
++            <copy file="${libs}/${war.name}" todir="${scp.dir}"/>
++            <exec executable="/bin/sh">
++                <arg line="${env.script}"/>
++            </exec>
++            <echo message="***** ENV COMPLETED *****"/>
+         </target>
+ 
+ 
++
++
+         <!-- ART TARGETS -->
+         <!-- как всегда, изумителен -->
+         <!-- TODO впихнуть куда-то шрекс))) -->
+>>>>>>> 6677dd8010125714cedde327f3a1195feb6bfd6e
