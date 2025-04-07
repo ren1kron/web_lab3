@@ -148,268 +148,153 @@
                 <version>3.1.0</version>
             </plugin>
 
-<!--            &lt;!&ndash; test &ndash;&gt;-->
-<!--            <plugin>-->
-<!--                <artifactId>maven-surefire-plugin</artifactId>-->
-<!--                <version>3.0.0-M7</version>-->
-<!--            </plugin>-->
+            <!-- test -->
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M7</version>
+            </plugin>
 
-<!--            &lt;!&ndash; scp — пример через antrun (реально лучше смотреть wagon-maven-plugin).-->
-<!--                 Допустим, хотим выполнять "mvn scp:scp" или "mvn antrun:run@scp" &ndash;&gt;-->
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-antrun-plugin</artifactId>-->
-<!--                <version>3.1.0</version>-->
-<!--                <executions>-->
-<!--                    &lt;!&ndash; Создадим отдельную конфигурацию для scp,-->
-<!--                         привяжем к произвольной фазе site (или install)-->
-<!--                         ИЛИ запускаем вручную через goal antrun:run@scp &ndash;&gt;-->
-<!--                    <execution>-->
-<!--                        <id>scp</id>-->
-<!--                        <phase>deploy</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>run</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <target>-->
-<!--                                <antcall target="package"/>-->
-<!--                                <scp todir="${scp.server}" trust="true" verbose="true">-->
-<!--                                    <fileset dir="${project.build.directory}">-->
-<!--                                        <include name="${project.build.finalName}.war"/>-->
-<!--                                    </fileset>-->
-<!--                                </scp>-->
-<!--                            </target>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
+            <!-- doc -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.6.3</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <SHA1>${sha1}</SHA1>
+                            <MD5>${md5}</MD5>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>generate-hashes</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <checksum file="${project.build.directory}/${project.build.finalName}.jar"
+                                          property="sha1"
+                                          algorithm="SHA-1"/>
+                                <checksum file="${project.build.directory}/${project.build.finalName}.jar"
+                                          property="md5"
+                                          algorithm="MD5"/>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
-<!--                    &lt;!&ndash; 6) native2ascii: аналогично &ndash;&gt;-->
-<!--                    <execution>-->
-<!--                        <id>native2ascii</id>-->
-<!--                        <phase>process-resources</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>run</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <target>-->
-<!--                                &lt;!&ndash; Пример Ant-задачи native2ascii-->
-<!--                                     (на практике возможно проще использовать mojohaus native2ascii-maven-plugin) &ndash;&gt;-->
-<!--                                <native2ascii src="${basedir}/src/main/resources/locales"-->
-<!--                                              dest="${project.build.directory}/converted-locales"-->
-<!--                                              encoding="UTF-8" extension=".properties"/>-->
-<!--                            </target>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
 
-<!--                    &lt;!&ndash; 7) doc: Добавляем MD5 и SHA1 в MANIFEST, генерируем javadoc и упаковываем в jar &ndash;&gt;-->
-<!--                    <execution>-->
-<!--                        <id>doc</id>-->
-<!--                        <phase>package</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>run</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <target>-->
-<!--                                &lt;!&ndash; Генерация MD5/SHA1 для jar &ndash;&gt;-->
-<!--                                <checksum file="${project.build.directory}/${project.build.finalName}.jar"-->
-<!--                                          property="lab3.checksum"-->
-<!--                                          fileext=".md5"/>-->
-<!--                                <checksum file="${project.build.directory}/${project.build.finalName}.jar"-->
-<!--                                          algorithm="SHA1"-->
-<!--                                          property="lab3.checksum.sha1"-->
-<!--                                          fileext=".sha1"/>-->
-<!--                                &lt;!&ndash; Запись в MANIFEST дополнительной информации о MD5/SHA1 &ndash;&gt;-->
-<!--                                <echo message="MD5: ${lab3.checksum}"/>-->
-<!--                                <echo message="SHA1: ${lab3.checksum.sha1}"/>-->
-<!--                                &lt;!&ndash; Прямого Ant-тasks для добавления в MANIFEST нет, но можно-->
-<!--                                     либо пересобрать Jar c помощью <jar> task,-->
-<!--                                     либо использовать настройки maven-jar-plugin (см. ниже). &ndash;&gt;-->
-<!--                            </target>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
 
-<!--                    &lt;!&ndash; 8) xml: Проверка/валидация XML-файлов &ndash;&gt;-->
-<!--                    <execution>-->
-<!--                        <id>validate-xml</id>-->
-<!--                        <phase>validate</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>run</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <target>-->
-<!--                                <xmlvalidate lenient="false">-->
-<!--                                    <fileset dir="${basedir}/src/main/resources">-->
-<!--                                        <include name="**/*.xml"/>-->
-<!--                                    </fileset>-->
-<!--                                </xmlvalidate>-->
-<!--                            </target>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>doc</id>
+                        <phase>none</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <!-- вычисление MD5 и SHA-1 для war -->
+                                <checksum file="${project.build.directory}/${project.build.finalName}.war"
+                                          property="war.checksum"
+                                          algorithm="MD5"/>
+                                <checksum file="${project.build.directory}/${project.build.finalName}.war"
+                                          property="war.sha1"
+                                          algorithm="SHA-1"/>
 
-<!--                    &lt;!&ndash; 9) music — воспроизведение музыки по завершению сборки (например, после package) &ndash;&gt;-->
-<!--                    <execution>-->
-<!--                        <id>music</id>-->
-<!--                        <phase>verify</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>run</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <target>-->
-<!--                                <echo message="Playing music..."/>-->
-<!--                                <exec executable="sh">-->
-<!--                                    <arg value="-c"/>-->
-<!--                                    <arg line="${music.cmd}"/>-->
-<!--                                </exec>-->
-<!--                            </target>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
+                                <!-- добавление этих значений в MANIFEST.MF через задачу <war update="true"> -->
+                                <war destfile="${project.build.directory}/${project.build.finalName}.war" update="true">
+                                    <manifest>
+                                        <attribute name="MD5" value="${war.checksum}"/>
+                                        <attribute name="SHA-1" value="${war.sha1}"/>
+                                    </manifest>
+                                </war>
 
-<!--                    &lt;!&ndash; 10) team — получение 2 предыдущих ревизий из git, их сборка, упаковка jar в zip &ndash;&gt;-->
-<!--                    <execution>-->
-<!--                        <id>team</id>-->
-<!--                        <phase>none</phase> &lt;!&ndash; Запуск вручную: mvn antrun:run@team &ndash;&gt;-->
-<!--                        <goals>-->
-<!--                            <goal>run</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <target>-->
-<!--                                <echo message="Team task: checkout 2 prev revisions, build them, zip jars"/>-->
-<!--                                &lt;!&ndash; Здесь можно использовать <exec> для git checkout <rev>, затем mvn package &ndash;&gt;-->
-<!--                                &lt;!&ndash; Для зипования: &ndash;&gt;-->
-<!--                                <zip destfile="${project.build.directory}/team_jars.zip">-->
-<!--                                    <fileset dir="${project.build.directory}">-->
-<!--                                        <include name="*.jar"/>-->
-<!--                                    </fileset>-->
-<!--                                </zip>-->
-<!--                            </target>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
+                                <!-- генерация Javadoc -->
+                                <mkdir dir="${project.build.directory}/doc"/>
+                                <javadoc sourcepath="${project.build.sourceDirectory}"
+                                         destdir="${project.build.directory}/doc"
+                                         packagenames="org.ren1kron.**"
+                                         classpath="${project.build.outputDirectory}">
+                                    <doctitle>${project.name} API</doctitle>
+                                </javadoc>
 
-<!--                    &lt;!&ndash; 11) diff — проверка изменений, commit в git при необходимости &ndash;&gt;-->
-<!--                    <execution>-->
-<!--                        <id>diff</id>-->
-<!--                        <phase>none</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>run</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <target>-->
-<!--                                <echo message="Diff task: проверяем, что менялись не критичные файлы..."/>-->
-<!--                                &lt;!&ndash; В реальности: git status / git diff, затем проверка exclude-файлов-->
-<!--                                     (excluded.files из config.properties) &ndash;&gt;-->
-<!--                                &lt;!&ndash; Если всё ок, то git commit &ndash;&gt;-->
-<!--                            </target>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
+                                <!-- добавление сгенерированного Javadoc в тот же war (update="true") -->
+                                <jar destfile="${project.build.directory}/${project.build.finalName}.war" update="true">
+                                    <fileset dir="${project.build.directory}/doc"/>
+                                </jar>
 
-<!--                    &lt;!&ndash; 12) history — при неудачной сборке откатываемся по ревизиям... &ndash;&gt;-->
-<!--                    <execution>-->
-<!--                        <id>history</id>-->
-<!--                        <phase>none</phase> &lt;!&ndash; вручную или через profile &ndash;&gt;-->
-<!--                        <goals>-->
-<!--                            <goal>run</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <target>-->
-<!--                                &lt;!&ndash; Логика: пробуем mvn compile, если fail — git checkout HEAD~1, повторяем &ndash;&gt;-->
-<!--                                <echo message="History task: if compile fails, revert to previous revision..."/>-->
-<!--                            </target>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
+                                <echo message="Done: MD5, SHA1, Javadoc added to war file"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 
-<!--                    &lt;!&ndash; 13) alt — создание альтернативной версии программы, замена имен (replace) &ndash;&gt;-->
-<!--                    <execution>-->
-<!--                        <id>alt</id>-->
-<!--                        <phase>none</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>run</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <target>-->
-<!--                                <echo message="Creating alternative version..."/>-->
-<!--                                <replaceregexp match="${replace.old.name}" replace="${replace.new.name}" flags="g">-->
-<!--                                    <fileset dir="src/main/java">-->
-<!--                                        <include name="**/*.java"/>-->
-<!--                                    </fileset>-->
-<!--                                </replaceregexp>-->
-<!--                                &lt;!&ndash; После этого запускаем сборку (mvn package) &ndash;&gt;-->
-<!--                                <antcall target="package"/>-->
-<!--                            </target>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
+            <!-- maven-jar-plugin: чтобы прописать Main-Class и прочие поля в MANIFEST.MF -->
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.2</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                            <mainClass>${main.class}</mainClass>
+                            <manifestEntries>
+                                <Implementation-Version>${lab3.version}</Implementation-Version>
+                                <!-- Прочие поля, например MD5/SHA1,
+                                     хотя проще это делать в отдельном Jar task или с помощью shade-plugin,
+                                     тут, для наглядности, просто укажем. -->
+                                <MD5-Checksum>${lab3.checksum}</MD5-Checksum>
+                                <SHA1-Checksum>${lab3.checksum.sha1}</SHA1-Checksum>
+                            </manifestEntries>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
 
-<!--                    &lt;!&ndash; 14) report — если тесты прошли, добавляем отчёт в SVN и делаем commit &ndash;&gt;-->
-<!--                    <execution>-->
-<!--                        <id>report</id>-->
-<!--                        <phase>verify</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>run</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <target>-->
-<!--                                <echo message="Report task: checking test results..."/>-->
-<!--                                &lt;!&ndash; Примерно: проверить наличие surefire-reports/*.xml => svn add => svn commit &ndash;&gt;-->
-<!--                            </target>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
-
-<!--                    &lt;!&ndash; 15) env — сборка и запуск программы в альтернативных окружениях (javaVersion, jvmArgs) &ndash;&gt;-->
-<!--                    <execution>-->
-<!--                        <id>env</id>-->
-<!--                        <phase>none</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>run</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <target>-->
-<!--                                <echo message="Env task: building/running under different Java versions..."/>-->
-<!--                                &lt;!&ndash; Здесь можно, например, перебрать список версий, запускать командой:-->
-<!--                                     /usr/lib/jvm/java-${version}/bin/java ${env.jvmArgs} -jar ...-->
-<!--                                     И проверять результат &ndash;&gt;-->
-<!--                                &lt;!&ndash; Также можно подключить maven-toolchains-plugin,-->
-<!--                                     если надо полноценно автоматически собирать под разные Java. &ndash;&gt;-->
-<!--                            </target>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
-
-<!--            &lt;!&ndash; maven-jar-plugin: чтобы прописать Main-Class и прочие поля в MANIFEST.MF &ndash;&gt;-->
-<!--            <plugin>-->
-<!--                <artifactId>maven-jar-plugin</artifactId>-->
-<!--                <version>3.2.2</version>-->
-<!--                <configuration>-->
-<!--                    <archive>-->
-<!--                        <manifest>-->
-<!--                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>-->
-<!--                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>-->
-<!--                            <mainClass>${main.class}</mainClass>-->
-<!--                            <manifestEntries>-->
-<!--                                <Implementation-Version>${lab3.version}</Implementation-Version>-->
-<!--                                &lt;!&ndash; Прочие поля, например MD5/SHA1,-->
-<!--                                     хотя проще это делать в отдельном Jar task или с помощью shade-plugin,-->
-<!--                                     тут, для наглядности, просто укажем. &ndash;&gt;-->
-<!--                                <MD5-Checksum>${lab3.checksum}</MD5-Checksum>-->
-<!--                                <SHA1-Checksum>${lab3.checksum.sha1}</SHA1-Checksum>-->
-<!--                            </manifestEntries>-->
-<!--                        </manifest>-->
-<!--                    </archive>-->
-<!--                </configuration>-->
-<!--            </plugin>-->
-
-<!--            &lt;!&ndash; Для javadoc: чтобы собрать документацию и по желанию включить в final jar или собрать javadoc.jar &ndash;&gt;-->
-<!--            <plugin>-->
-<!--                <artifactId>maven-javadoc-plugin</artifactId>-->
-<!--                <version>3.4.1</version>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <id>attach-javadocs</id>-->
-<!--                        <phase>package</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>jar</goal> &lt;!&ndash; Собирает javadoc.jar &ndash;&gt;-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
+            <!-- Для javadoc: чтобы собрать документацию и по желанию включить в final jar или собрать javadoc.jar -->
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.4.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal> <!-- Собирает javadoc.jar -->
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
         </plugins>
     </build>
