@@ -1,5 +1,6 @@
     <project name="web3" default="build" basedir="."
-             xmlns:ivy="antlib:org.apache.ivy.ant">
+             xmlns:ivy="antlib:org.apache.ivy.ant"
+             xmlns:ac="antlib:net.sf.antcontrib">
 
         <!-- TODO - музяка
                   - native2ascii
@@ -295,52 +296,64 @@
         </target>
 
         <!-- ========== history ========== -->
-        <!-- не тестил -->
+        <!-- WORKS!!!! -->
         <target name="history" depends="resolve" description="Roll back to previous revisions until the project can be compiled">
             <echo message="Trying to build the current version..."/>
-
-            <!-- Пробуем compile, если неудача - откатываемся -->
-            <trycatch>
-                <try>
-                    <antcall target="compile"/>
-                </try>
-                <catch>
-                    <property name="compile.failed" value="true"/>
-                </catch>
-            </trycatch>
-
-            <if>
-                <equals arg1="${compile.failed}" arg2="true" />
-                <then>
-                    <echo message="Build failed. Going to previous revision..."/>
-                    <exec executable="git">
-                        <arg value="checkout"/>
-                        <arg value="HEAD~1"/>
-                    </exec>
-
-                    <!-- Рекурсивный вызов той же цели history, пока не соберётся
-                         или пока не достигнем самой первой ревизии -->
-                    <ant target="history"/>
-                </then>
-                <else>
-                    <echo message="The assembly was successful during the revision:"/>
-                    <exec executable="git">
-                        <arg value="rev-parse"/>
-                        <arg value="HEAD"/>
-                        <redirector outputproperty="current.sha"/>
-                    </exec>
-                    <echo message="Current revision: ${current.sha}"/>
-
-                    <!-- Формируем файл с результатом diff между этой ревизией
-                         и следующей, которая не собиралась -->
-                    <exec executable="git">
-                        <arg value="show"/>
-                        <arg value="${current.sha}~1..${current.sha}"/>
-                        <redirector output="history_diff.txt"/>
-                    </exec>
-                </else>
-            </if>
+            <!-- Флаг успешной сборки -->
+            <property name="build.success" value="false"/>
+            <!-- Цикл: максимум 10 попыток -->
+            <for list="1,2,3,4,5,6,7,8,9,10" param="attempt" delimiter=",">
+                <sequential>
+                    <!-- Если сборка уже прошла успешно, пропускаем оставшиеся итерации -->
+                    <if>
+                        <equals arg1="${build.success}" arg2="true"/>
+                        <then>
+                            <echo message="Build already succeeded in a previous iteration (attempt ${attempt}). Skipping further actions."/>
+                        </then>
+                        <else>
+                            <echo message="Attempt ${attempt}: Trying to compile the current revision..."/>
+                            <!-- Пробуем выполнить сборку с обработкой ошибок -->
+                            <trycatch>
+                                <try>
+                                    <antcall target="compile"/>
+                                    <var name="compile.failed" value="false"/>
+                                </try>
+                                <catch>
+                                    <var name="compile.failed" value="true"/>
+                                </catch>
+                            </trycatch>
+                            <if>
+                                <equals arg1="${compile.failed}" arg2="true"/>
+                                <then>
+                                    <echo message="Build failed. Rolling back to previous revision..."/>
+                                    <exec executable="git">
+                                        <arg value="checkout"/>
+                                        <arg value="HEAD~1"/>
+                                    </exec>
+                                </then>
+                                <else>
+                                    <echo message="Build succeeded at revision:"/>
+                                    <exec executable="git">
+                                        <arg value="rev-parse"/>
+                                        <arg value="HEAD"/>
+                                        <redirector outputproperty="current.sha"/>
+                                    </exec>
+                                    <echo message="Current revision: ${current.sha}"/>
+                                    <exec executable="git">
+                                        <arg value="show"/>
+                                        <arg value="${current.sha}~1..${current.sha}"/>
+                                        <redirector output="history_diff.txt"/>
+                                    </exec>
+                                    <!-- Устанавливаем флаг успешной сборки -->
+                                    <var name="build.success" value="true"/>
+                                </else>
+                            </if>
+                        </else>
+                    </if>
+                </sequential>
+            </for>
         </target>
+
 
         <!-- ========== alt ========== -->
         <!-- не тестил -->
