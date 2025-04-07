@@ -201,6 +201,7 @@
                 <os family="mac"/>
             </condition>
 
+            <antcall target="draw_shrek"/>
             <!-- Windows -->
             <exec executable="cmd" osfamily="windows" failonerror="false">
                 <arg value="/c"/>
@@ -216,7 +217,7 @@
         </target>
 
         <!-- ========== team ========== -->
-        <!-- внешне работает, надо будет war-ники запустить и протестить -->
+        <!-- WORKS (i believe...) -->
         <target name="team" description="Getting 2 previous revisions from git, building them and packing them into a zip">
             <echo message="Getting 2 previous revisions from git..."/>
             <exec executable="git">
@@ -252,7 +253,7 @@
         </target>
 
         <!-- ========== diff ========== -->
-        <!-- походу не работает -->
+        <!-- FIXED!!! -->
         <target name="diff" depends="resolve" description="Check the state of the working copy and commit if the changes do not affect critical classes">
             <!-- 1) Проверяем, какие файлы изменены (git status или git diff) -->
             <exec executable="git">
@@ -415,24 +416,43 @@
 
 
         <!-- ========== env ========== -->
-        <!-- не тестил -->
-        <target name="env" depends="compile" description="Сборка и запуск программы в альтернативных окружениях">
-            <!-- Предположим, есть несколько версий Java, и мы хотим прогнать программу под всеми -->
-            <foreach list="${env.java.versions}" param="java.version" delimiter=",">
-                <sequential>
-                    <echo message="Run under Java ${java.version} with options ${env.jvm.args}"/>
-                    <!-- Укажем путь к нужной java, например:
-                         /usr/lib/jvm/java-${java.version}/bin/java
-                         или, если действительно установлено несколько версий.
-                    -->
-                    <exec executable="/usr/lib/jvm/java-${java.version}/bin/java">
-                        <arg line="${env.jvm.args}"/>
-                        <arg value="-jar"/>
-                        <arg value="${dist.dir}/${jar.name}"/>
-                    </exec>
-                </sequential>
-            </foreach>
+        <!-- WORKS!!! -->
+        <target name="env" depends="clean, resolve">
+            <echo message="***** ENV STARTED *****"/>
+
+            <path refid="classpath"/>
+
+            <mkdir dir="${classes}/java/main"/>
+            <javac srcdir="${main.dir}"
+                   destdir="${classes}/java/main"
+                   includeantruntime="false"
+                   classpathref="classpath"
+                   target="${compile.version}"
+                   source="${compile.version}">
+                <compilerarg value="-processor"/>
+                <compilerarg value="lombok.launch.AnnotationProcessorHider$AnnotationProcessor"/>
+            </javac>
+
+
+            <antcall target="retrieve"/>
+            <copy todir="${classes}/java/main">
+                <fileset dir="${resources.dir}"/>
+            </copy>
+            <war destfile="${libs}/${war.name}" webxml="${web.dir}/WEB-INF/web.xml">
+                <classes dir="${classes}/java/main"/>
+                <fileset dir="${web.dir}"/>
+                <lib dir="ant/lib">
+                    <exclude name="jakarta.jakartaee-*.jar"/>
+                </lib>
+            </war>
+            <copy file="${libs}/${war.name}" todir="${scp.dir}"/>
+            <exec executable="/bin/sh">
+                <arg line="${env.script}"/>
+            </exec>
+            <echo message="***** ENV COMPLETED *****"/>
         </target>
+
+
 
 
         <!-- ART TARGETS -->
