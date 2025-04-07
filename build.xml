@@ -356,7 +356,7 @@
 
 
         <!-- ========== alt ========== -->
-        <!-- не тестил -->
+        <!-- WORKS -->
         <target name="alt" depends="resolve" description="Creating an alternative version of the program and packaging it into a war">
             <mkdir dir="${alt.dir}"/>
             <mkdir dir="${alt-classes}/java/main"/>
@@ -396,6 +396,8 @@
                 <classes dir="${alt-classes}"/>
                 <fileset dir="${web.dir}"/>
             </war>
+
+            <delete dir="ant/alt"/>
         </target>
 
         <!-- ========== report ========== -->
