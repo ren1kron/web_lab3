@@ -1,4 +1,5 @@
 .gradle
+deploy.bat
 ant/
 build/
 target

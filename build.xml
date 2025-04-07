@@ -68,8 +68,6 @@
 
         <!-- ========== clean ========== -->
         <target name="clean" description="Cleaning up compiled classes and temporary files">
-    <!--        <delete dir="${build.dir}"/>-->
-    <!--        <delete dir="${libs}"/>-->
             <delete dir="ant"/>
         </target>
 
@@ -213,7 +211,7 @@
 
         <!-- ========== diff ========== -->
         <target name="diff" depends="resolve" description="Check the state of the working copy and commit if the changes do not affect critical classes">
-            <!-- 1) Проверяем, какие файлы изменены (git status или git diff) -->
+            <!-- 1) Проверяем, какие файлы изменены -->
             <exec executable="git">
                 <arg value="diff"/>
                 <arg value="--name-only"/>
