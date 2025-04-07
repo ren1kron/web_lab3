@@ -283,9 +283,9 @@
                         <arg value="-m"/>
                         <arg value="Automatic commit"/>
                     </exec>
-                    <exec executable="git">
-                        <arg value="push"/>
-                    </exec>
+<!--                    <exec executable="git">-->
+<!--                        <arg value="push"/>-->
+<!--                    </exec>-->
                 </then>
                 <else>
                     <echo message="Changes affect critical classes. Commit skipped."/>
