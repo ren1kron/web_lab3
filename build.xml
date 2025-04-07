@@ -400,6 +400,18 @@
             </junitreport>
 
             <echo message="Отчёт по тестам успешно сгенерирован в ${junit-reports.dir}/html"/>
+
+            <exec executable="svn">
+                <arg value="add"/>
+                <arg value="${junit-reports.dir}"/>
+                <arg value="--force"/>
+            </exec>
+            <exec executable="svn" dir="wc">
+                <arg value="commit"/>
+                <arg value="-m"/>
+                <arg value="Add test report"/>
+            </exec>
+
         </target>
 
 
