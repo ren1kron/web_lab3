@@ -103,10 +103,11 @@
         </target>
 
         <target name="test" depends="build" description="Run JUnit 5 tests">
+            <mkdir dir="${junit-reports.dir}"/>
             <junitlauncher haltOnFailure="true" printSummary="true">
                 <!-- Используем определённый classpath для тестов -->
                 <classpath refid="test.classpath"/>
-                <testclasses outputdir="build/test-report">
+                <testclasses outputdir="${junit-reports.dir}">
                     <fileset dir="${classes}/java/test">
                         <!-- Указываем шаблоны для поиска классов с тестами -->
                         <include name="**/*Test.class"/>
@@ -143,7 +144,7 @@
         </target>
 
         <!-- ========== doc ========== -->
-        <!-- не тестил -->
+        <!-- WORKS -->
         <target name="doc" depends="build" description="Adding MD5 and SHA-1, generating javadoc">
             <!-- Расчёт MD5 и SHA-1 для jar -->
             <checksum file="${libs}/${war.name}"
@@ -385,32 +386,22 @@
 
         <!-- ========== report ========== -->
         <!-- не тестил, 100% уверен - не работает -->
-        <target name="report" depends="test" unless="test.failed" description="Saves the JUnit report and commits it to SVN">
-            <mkdir dir="${junit-reports.dir}"/>
+        <!-- ========== report ========== -->
+        <target name="report" depends="test" description="Генерация HTML-отчёта по тестам">
+            <!-- Создаём каталог для хранения сгенерированного отчёта -->
 
-            <junitreport todir="reports">
-                <fileset dir="reports">
-                    <include name="TEST-*.xml"/>
-                </fileset>
-            </junitreport>
-
-            <copy todir="${junit-reports.dir}">
+            <!-- Генерируем HTML-отчёт на основе XML-отчётов тестирования -->
+            <junitreport todir="${junit-reports.dir}">
                 <fileset dir="${build.dir}">
                     <include name="TEST-*.xml"/>
                 </fileset>
-            </copy>
+                <!-- Используем формат без фреймов, отчёт окажется в каталоге junit-reports.dir/html -->
+                <report format="frames" todir="${junit-reports.dir}/html"/>
+            </junitreport>
 
-            <exec executable="svn">
-                <arg value="add"/>
-                <arg value="${junit-reports.dir}"/>
-                <arg value="--force"/>
-            </exec>
-            <exec executable="svn">
-                <arg value="commit"/>
-                <arg value="-m"/>
-                <arg value="Add test report"/>
-            </exec>
+            <echo message="Отчёт по тестам успешно сгенерирован в ${junit-reports.dir}/html"/>
         </target>
+
 
         <!-- ========== env ========== -->
         <!-- не тестил -->
