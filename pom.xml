@@ -117,10 +117,7 @@
         </resources>
 
         <plugins>
-
-            <!-- (Задачи 1 и 2) Стандартная компиляция и упаковка в war:
-                 mvn compile, mvn package
-            -->
+            <!-- compile и build (package) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
@@ -188,30 +185,30 @@
             <!-- (Задача 9) Воспроизведение музыки после сборки (фаза package).
                  Можно воспроизвести через системную команду (exec).
             -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.1.0</version>
-                <executions>
-                    <execution>
-                        <id>play-music</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>java</executable>
-                            <arguments>
-                                <!-- Или можно вызвать любую внешнюю программу-плеер -->
-                                <argument>-cp</argument>
-                                <argument>${project.build.directory}/classes</argument>
-                                <argument>org.example.tools.MusicPlayer</argument>
-                                <argument>${music.path}</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.codehaus.mojo</groupId>-->
+<!--                <artifactId>exec-maven-plugin</artifactId>-->
+<!--                <version>3.1.0</version>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>play-music</id>-->
+<!--                        <phase>package</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>exec</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <executable>java</executable>-->
+<!--                            <arguments>-->
+<!--                                &lt;!&ndash; Или можно вызвать любую внешнюю программу-плеер &ndash;&gt;-->
+<!--                                <argument>-cp</argument>-->
+<!--                                <argument>${project.build.directory}/classes</argument>-->
+<!--                                <argument>org.example.tools.MusicPlayer</argument>-->
+<!--                                <argument>${music.path}</argument>-->
+<!--                            </arguments>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
 
 
 
@@ -272,24 +269,25 @@
                     </execution>
 
                     <!-- (Задача 6) Преобразование native2ascii -->
-                    <execution>
-                        <id>native2ascii-files</id>
-                        <!-- Пусть эта задача будет на фазе process-resources -->
-                        <phase>process-resources</phase>
-                        <configuration>
-                            <target>
-                                <echo>=== Выполняем native2ascii для локализационных файлов ===</echo>
-                                <mkdir dir="${project.build.directory}/native2ascii"/>
-                                <native2ascii
-                                        srcdir="${project.basedir}/src/main/resources/i18n"
-                                        destdir="${project.build.directory}/native2ascii"
-                                        encoding="UTF-8" />
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
+<!--                    <execution>-->
+<!--                        <id>native2ascii-files</id>-->
+<!--                        <phase>process-resources</phase>-->
+<!--                        <configuration>-->
+<!--                            <target>-->
+<!--                                <echo>=== Выполняем native2ascii для локализационных файлов ===</echo>-->
+<!--                                <mkdir dir="${project.build.directory}/native2ascii"/>-->
+<!--                                <native2ascii-->
+<!--                                        srcDir="${project.basedir}/src/main/resources/i18n"-->
+<!--                                        destDir="${project.build.directory}/native2ascii"-->
+<!--                                        includes="**/*.properties"-->
+<!--                                        ext="properties"-->
+<!--                                        encoding="UTF-8"/>-->
+<!--                            </target>-->
+<!--                        </configuration>-->
+<!--                        <goals>-->
+<!--                            <goal>run</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
 
                     <!-- (Задача 8) Валидация XML -->
                     <execution>
