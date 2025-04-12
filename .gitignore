@@ -52,3 +52,5 @@ deploy.sh
 clean_deploy.sh
 deploy.bat
 secret.properties
+wc/
+repo/
