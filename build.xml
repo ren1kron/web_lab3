@@ -136,11 +136,12 @@
         <!-- ========== native2ascii ========== -->
         <!-- TODO я не понимаю, почему ru проперти постоянно заполняется "?" и как затестить работоспособность сделанных проперти. Но локализацию я добавил, она теперь работает -->
         <target name="native2ascii" description="Converting localization files">
+            <delete dir="${build.dir}/resources/resources-native"/>
             <mkdir dir="${build.dir}/resources/resources-native"/>
             <native2ascii src="${resources.dir}"
                           dest="${build.dir}/resources/resources-native"
                           includes="**/*.properties"
-                          encoding="UTF-8"
+                          encoding="ISO-8859-1"
                           reverse="false"/>
         </target>
 
@@ -327,8 +328,9 @@
                                 <then>
                                     <echo message="Build failed. Rolling back to previous revision..."/>
                                     <exec executable="git">
-                                        <arg value="checkout"/>
+                                        <arg value="reset"/>
                                         <arg value="HEAD~1"/>
+                                        <arg value="--hard"/>
                                     </exec>
                                 </then>
                                 <else>
