@@ -121,6 +121,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
                 <configuration>
                     <annotationProcessorPaths>
                         <path>
@@ -154,26 +155,53 @@
 
             <!-- (Задача 5) Перемещение собранного проекта на сервер по SCP -->
             <plugin>
-                <groupId>org.apache.maven.wagon</groupId>
+                <groupId>org.codehaus.mojo</groupId>
                 <artifactId>wagon-maven-plugin</artifactId>
-                <version>1.0</version>
+                <version>2.0.2</version>
                 <executions>
                     <execution>
                         <id>scp-deploy</id>
-                        <!-- Допустим, хотим делать это после package -->
                         <phase>install</phase>
                         <goals>
                             <goal>upload</goal>
                         </goals>
                         <configuration>
-                            <serverId>scp-host</serverId>
-                            <fromFile>${project.build.directory}/${project.build.finalName}.war</fromFile>
-                            <url>scp://${scp.host}${scp.path}</url>
+                            <serverId>helios</serverId>
+                            <fromDir>${project.build.directory}/</fromDir>
+                            <includes>${project.build.finalName}.war</includes>
+                            <url>scp://s409411@helios.cs.ifmo.ru:2222/home/studs/s409411/zalupa</url>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
 
+
+            <!-- native2ascii -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>native2ascii</id>
+                        <phase>process-resources</phase>
+                        <configuration>
+                            <target>
+                                <delete dir="${project.build.directory}/resources/resources-native"/>
+                                <mkdir dir="${project.build.directory}/resources/resources-native"/>
+                                <native2ascii src="src/main/resources"
+                                              dest="${project.build.directory}/resources/resources-native"
+                                              includes="**/*.properties"
+                                              encoding="ISO-8859-1"
+                                              reverse="false"/>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
 
             <!-- (Задача 7) Добавление MD5 и SHA-1 в MANIFEST.MF, генерация javadoc и
@@ -230,12 +258,12 @@
             <!-- (Задача 11) Проверка изменений в рабочей копии, если они не касаются заданных
                  классов - commit. Аналогично, либо maven-scm-plugin, либо скрипты через antrun/exec.
             -->
-            <plugin>
-                <groupId>org.apache.maven.scm</groupId>
-                <artifactId>maven-scm-plugin</artifactId>
-                <version>1.11.3</version>
-                <!-- Настройка SCM, если используем git. Либо опять же через exec. -->
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.scm</groupId>-->
+<!--                <artifactId>maven-scm-plugin</artifactId>-->
+<!--                <version>1.11.3</version>-->
+<!--                &lt;!&ndash; Настройка SCM, если используем git. Либо опять же через exec. &ndash;&gt;-->
+<!--            </plugin>-->
 
             <!-- (Задача 12) Если проект не компилируется (compile) - откат на предыдущую версию,
                  пока не найдём рабочую. Если нет - формируем diff. Снова скрипты,
@@ -254,49 +282,67 @@
             -->
 
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>3.1.0</version>
-                <executions>
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-antrun-plugin</artifactId>-->
+<!--                <version>3.1.0</version>-->
+<!--                <executions>-->
 
-                    <!-- (Задача 4) "Сначала package, потом test" -->
-                    <execution>
-                        <id>custom-test-after-package</id>
-                        <!-- Запустим на фазе verify -->
-                        <phase>verify</phase>
-                        <configuration>
-                            <target>
-                                <echo>=== Выполняем: mvn package ===</echo>
-                                <exec executable="mvn">
-                                    <arg value="package"/>
-                                </exec>
-                                <echo>=== Выполняем: mvn test ===</echo>
-                                <exec executable="mvn">
-                                    <arg value="test"/>
-                                </exec>
-                            </target>
-                        </configuration>
-                        <goals>
-                            <!-- Вместо <goal>execute</goal> указываем <goal>run</goal> -->
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-
-                    <!-- (Задача 6) Преобразование native2ascii -->
+<!--                    &lt;!&ndash; (Задача 4) "Сначала package, потом test" &ndash;&gt;-->
 <!--                    <execution>-->
-<!--                        <id>native2ascii-files</id>-->
-<!--                        <phase>process-resources</phase>-->
+<!--                        <id>custom-test-after-package</id>-->
+<!--                        &lt;!&ndash; Запустим на фазе verify &ndash;&gt;-->
+<!--                        <phase>verify</phase>-->
 <!--                        <configuration>-->
 <!--                            <target>-->
-<!--                                <echo>=== Выполняем native2ascii для локализационных файлов ===</echo>-->
-<!--                                <mkdir dir="${project.build.directory}/native2ascii"/>-->
-<!--                                <native2ascii-->
-<!--                                        srcDir="${project.basedir}/src/main/resources/i18n"-->
-<!--                                        destDir="${project.build.directory}/native2ascii"-->
-<!--                                        includes="**/*.properties"-->
-<!--                                        ext="properties"-->
-<!--                                        encoding="UTF-8"/>-->
+<!--                                <echo>=== Выполняем: mvn package ===</echo>-->
+<!--                                <exec executable="mvn">-->
+<!--                                    <arg value="package"/>-->
+<!--                                </exec>-->
+<!--                                <echo>=== Выполняем: mvn test ===</echo>-->
+<!--                                <exec executable="mvn">-->
+<!--                                    <arg value="test"/>-->
+<!--                                </exec>-->
+<!--                            </target>-->
+<!--                        </configuration>-->
+<!--                        <goals>-->
+<!--                            &lt;!&ndash; Вместо <goal>execute</goal> указываем <goal>run</goal> &ndash;&gt;-->
+<!--                            <goal>run</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+
+<!--                    &lt;!&ndash; (Задача 6) Преобразование native2ascii &ndash;&gt;-->
+<!--&lt;!&ndash;                    <execution>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <id>native2ascii-files</id>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <phase>process-resources</phase>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <configuration>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <target>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <echo>=== Выполняем native2ascii для локализационных файлов ===</echo>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <mkdir dir="${project.build.directory}/native2ascii"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <native2ascii&ndash;&gt;-->
+<!--&lt;!&ndash;                                        srcDir="${project.basedir}/src/main/resources/i18n"&ndash;&gt;-->
+<!--&lt;!&ndash;                                        destDir="${project.build.directory}/native2ascii"&ndash;&gt;-->
+<!--&lt;!&ndash;                                        includes="**/*.properties"&ndash;&gt;-->
+<!--&lt;!&ndash;                                        ext="properties"&ndash;&gt;-->
+<!--&lt;!&ndash;                                        encoding="UTF-8"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </target>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </configuration>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <goals>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <goal>run</goal>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </goals>&ndash;&gt;-->
+<!--&lt;!&ndash;                    </execution>&ndash;&gt;-->
+
+<!--                    &lt;!&ndash; (Задача 8) Валидация XML &ndash;&gt;-->
+<!--                    <execution>-->
+<!--                        <id>validate-xml</id>-->
+<!--                        <phase>verify</phase>-->
+<!--                        <configuration>-->
+<!--                            <target>-->
+<!--                                <echo>=== Валидация XML ===</echo>-->
+<!--                                <xmlvalidate lenient="false">-->
+<!--                                    <fileset dir="${project.basedir}/src/main/resources"-->
+<!--                                             includes="**/*.xml"/>-->
+<!--                                </xmlvalidate>-->
 <!--                            </target>-->
 <!--                        </configuration>-->
 <!--                        <goals>-->
@@ -304,59 +350,47 @@
 <!--                        </goals>-->
 <!--                    </execution>-->
 
-                    <!-- (Задача 8) Валидация XML -->
-                    <execution>
-                        <id>validate-xml</id>
-                        <phase>verify</phase>
-                        <configuration>
-                            <target>
-                                <echo>=== Валидация XML ===</echo>
-                                <xmlvalidate lenient="false" haltOnError="true">
-                                    <fileset dir="${project.basedir}/src/main/resources"
-                                             includes="**/*.xml"/>
-                                </xmlvalidate>
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
+<!--                    &lt;!&ndash; (Задача 10) Сборка двух предыдущих ревизий git &ndash;&gt;-->
+<!--                    <execution>-->
+<!--                        <id>build-previous-revs</id>-->
+<!--                        <phase>verify</phase>-->
+<!--                        <configuration>-->
+<!--                            <target>-->
+<!--                                <echo>=== Получаем 2 предыдущие ревизии GIT ===</echo>-->
+<!--                                &lt;!&ndash; Здесь блоки <exec> для git checkout HEAD~1, mvn package и т.д. &ndash;&gt;-->
+<!--                            </target>-->
+<!--                        </configuration>-->
+<!--                        <goals>-->
+<!--                            <goal>run</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
 
-                    <!-- (Задача 10) Сборка двух предыдущих ревизий git -->
-                    <execution>
-                        <id>build-previous-revs</id>
-                        <phase>verify</phase>
-                        <configuration>
-                            <target>
-                                <echo>=== Получаем 2 предыдущие ревизии GIT ===</echo>
-                                <!-- Здесь блоки <exec> для git checkout HEAD~1, mvn package и т.д. -->
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-
-                    <!-- И т.д. при необходимости можно добавить новые executions -->
-                </executions>
-            </plugin>
+<!--                    &lt;!&ndash; И т.д. при необходимости можно добавить новые executions &ndash;&gt;-->
+<!--                </executions>-->
+<!--            </plugin>-->
         </plugins>
     </build>
 
     <!-- Профили (если нужно активировать какие-то задачи только при определённых условиях и т.д.) -->
-    <profiles>
-        <!-- Например, профиль для alt-сборки -->
-        <profile>
-            <id>alt-build</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <build>
-                <plugins>
-                    <!-- Можно снова сослаться на antrun@alt или просто вызвать mvn antrun:run@alt -->
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
+<!--    <profiles>-->
+<!--        &lt;!&ndash; Например, профиль для alt-сборки &ndash;&gt;-->
+<!--        <profile>-->
+<!--            <id>alt-build</id>-->
+<!--            <activation>-->
+<!--                <activeByDefault>false</activeByDefault>-->
+<!--            </activation>-->
+<!--            <build>-->
+<!--                <plugins>-->
+<!--                    &lt;!&ndash; Можно снова сослаться на antrun@alt или просто вызвать mvn antrun:run@alt &ndash;&gt;-->
+<!--                </plugins>-->
+<!--            </build>-->
+<!--        </profile>-->
+<!--    </profiles>-->
 
+<!--    <distributionManagement>-->
+<!--        <repository>-->
+<!--            <id>helios</id>-->
+<!--            <url>scp://s409411@helios.se.ifmo.ru:/home/studs/s409411/zalupa</url>-->
+<!--        </repository>-->
+<!--    </distributionManagement>-->
 </project>
