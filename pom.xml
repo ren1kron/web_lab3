@@ -182,6 +182,14 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>3.1.0</version>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>ant-contrib</groupId>
+                        <artifactId>ant-contrib</artifactId>
+                        <version>1.0b3</version>
+                    </dependency>
+                </dependencies>
                 <executions>
                     <!-- Задача 6. native2ascii -->
                     <!-- работает -->
@@ -286,6 +294,10 @@
                         <phase>verify</phase>
                         <configuration>
                             <target>
+                                <!-- Подключаем ant-contrib -->
+                                <taskdef resource="net/sf/antcontrib/antcontrib.properties"
+                                         classpathref="maven.plugin.classpath"/>
+
                                 <!-- 1) Проверяем, какие файлы изменены (git status или git diff) -->
                                 <exec executable="git">
                                     <arg value="diff"/>
