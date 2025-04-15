@@ -154,6 +154,7 @@
 
 
             <!-- (Задача 5) Перемещение собранного проекта на сервер по SCP -->
+            <!-- работает -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>wagon-maven-plugin</artifactId>
@@ -176,12 +177,14 @@
             </plugin>
 
 
-            <!-- native2ascii -->
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>3.1.0</version>
                 <executions>
+                    <!-- Задача 6. native2ascii -->
+                    <!-- работает -->
                     <execution>
                         <id>native2ascii</id>
                         <phase>process-resources</phase>
@@ -189,7 +192,7 @@
                             <target>
                                 <delete dir="${project.build.directory}/resources/resources-native"/>
                                 <mkdir dir="${project.build.directory}/resources/resources-native"/>
-                                <native2ascii src="src/main/resources"
+                                <native2ascii src="${project.basedir}/src/main/resources"
                                               dest="${project.build.directory}/resources/resources-native"
                                               includes="**/*.properties"
                                               encoding="ISO-8859-1"
@@ -200,13 +203,38 @@
                             <goal>run</goal>
                         </goals>
                     </execution>
+
+                    <!-- Задача 8. native2ascii -->
+                    <!-- работает -->
+                    <execution>
+                        <id>validate-xml</id>
+                        <phase>validate</phase>
+                        <configuration>
+                            <target>
+                                <xmlvalidate>
+                                    <fileset dir="${project.basedir}/src/main/resources">
+                                        <include name="**/*.xml"/>
+                                    </fileset>
+                                    <fileset dir="${project.basedir}/src/main/webapp">
+                                        <include name="**/*.xml"/>
+                                    </fileset>
+                                    <attribute name="http://xml.org/sax/features/validation" value="true"/>
+                                    <attribute name="http://apache.org/xml/features/validation/schema"  value="true"/>
+                                    <attribute name="http://xml.org/sax/features/namespaces" value="true"/>
+                                </xmlvalidate>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
                 </executions>
             </plugin>
 
 
-            <!-- (Задача 7) Добавление MD5 и SHA-1 в MANIFEST.MF, генерация javadoc и
-                 добавление в архив. Чек-суммы в MANIFEST - можно с помощью antrun и ant-конструкций:
+            <!-- Задача 7. Java doc
             -->
+            <!-- внешне работает. TODO Костя, проверь -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
@@ -222,36 +250,31 @@
                 </executions>
             </plugin>
 
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <!-- Задача 9. music - Воспроизведение музыки после сборки -->
+                <executions>
+                    <execution>
+                        <id>play-gif-music</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>bash</executable>
+                            <arguments>
+                                <argument>resources/play-music-and-gif.sh</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 
 
 
-            <!-- (Задача 9) Воспроизведение музыки после сборки (фаза package).
-                 Можно воспроизвести через системную команду (exec).
-            -->
-<!--            <plugin>-->
-<!--                <groupId>org.codehaus.mojo</groupId>-->
-<!--                <artifactId>exec-maven-plugin</artifactId>-->
-<!--                <version>3.1.0</version>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <id>play-music</id>-->
-<!--                        <phase>package</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>exec</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <executable>java</executable>-->
-<!--                            <arguments>-->
-<!--                                &lt;!&ndash; Или можно вызвать любую внешнюю программу-плеер &ndash;&gt;-->
-<!--                                <argument>-cp</argument>-->
-<!--                                <argument>${project.build.directory}/classes</argument>-->
-<!--                                <argument>org.example.tools.MusicPlayer</argument>-->
-<!--                                <argument>${music.path}</argument>-->
-<!--                            </arguments>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
+
 
 
 
