@@ -228,6 +228,53 @@
                             <goal>run</goal>
                         </goals>
                     </execution>
+
+                    <!-- Задача 10. team -->
+                    <!--  -->
+                    <execution>
+                        <id>build-previous-revisions</id>
+                        <phase>verify</phase>
+                        <configuration>
+                            <target>
+                                <echo>=== Получаем 2 предыдущие ревизии GIT ===</echo>
+                                <exec executable="git">
+                                    <arg value="checkout"/>
+                                    <arg value="HEAD~1"/>
+                                </exec>
+                                <exec executable="mvn">
+                                    <arg value="package"/>
+                                </exec>
+                                <copy file="${project.build.directory}/${project.build.finalName}.war"
+                                      tofile="${project.build.directory}/${project.build.finalName}.rev1.war"/>
+                                <!-- Аналогичные действия для второй ревизии -->
+                                <exec executable="git">
+                                    <arg value="checkout"/>
+                                    <arg value="HEAD~1"/>
+                                </exec>
+                                <exec executable="mvn">
+                                    <arg value="package"/>
+                                </exec>
+                                <copy file="${project.build.directory}/${project.build.finalName}.war"
+                                      tofile="${project.build.directory}/${project.build.finalName}.rev2.war"/>
+
+                                <!-- Возвращаемся на основную ветку -->
+                                <exec executable="git">
+                                    <arg value="checkout"/>
+                                    <arg value="opi3"/>
+                                </exec>
+                                <!-- Упаковка в zip -->
+                                <zip destfile="${project.build.directory}/team_builds.zip">
+                                    <fileset dir="${project.build.directory}">
+                                        <include name="*.rev1.war"/>
+                                        <include name="*.rev2.war"/>
+                                    </fileset>
+                                </zip>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
                 </executions>
             </plugin>
 
@@ -255,6 +302,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
                 <!-- Задача 9. music - Воспроизведение музыки после сборки -->
+                <!-- работает -->
                 <executions>
                     <execution>
                         <id>play-gif-music</id>
