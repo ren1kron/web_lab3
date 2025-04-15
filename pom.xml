@@ -230,13 +230,17 @@
                     </execution>
 
                     <!-- Задача 10. team -->
-                    <!--  -->
+                    <!-- вроде работает -->
                     <execution>
                         <id>build-previous-revisions</id>
                         <phase>verify</phase>
                         <configuration>
                             <target>
                                 <echo>=== Получаем 2 предыдущие ревизии GIT ===</echo>
+                                <exec executable="git">
+                                    <arg value="stash"/>
+                                </exec>
+
                                 <exec executable="git">
                                     <arg value="checkout"/>
                                     <arg value="HEAD~1"/>
@@ -297,28 +301,28 @@
                 </executions>
             </plugin>
 
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.1.0</version>
-                <!-- Задача 9. music - Воспроизведение музыки после сборки -->
-                <!-- работает -->
-                <executions>
-                    <execution>
-                        <id>play-gif-music</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>bash</executable>
-                            <arguments>
-                                <argument>resources/play-music-and-gif.sh</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.codehaus.mojo</groupId>-->
+<!--                <artifactId>exec-maven-plugin</artifactId>-->
+<!--                <version>3.1.0</version>-->
+<!--                &lt;!&ndash; Задача 9. music - Воспроизведение музыки после сборки &ndash;&gt;-->
+<!--                &lt;!&ndash; работает &ndash;&gt;-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>play-gif-music</id>-->
+<!--                        <phase>package</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>exec</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <executable>bash</executable>-->
+<!--                            <arguments>-->
+<!--                                <argument>resources/play-music-and-gif.sh</argument>-->
+<!--                            </arguments>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
 
 
 
