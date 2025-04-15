@@ -233,7 +233,7 @@
                     <!-- вроде работает -->
                     <execution>
                         <id>build-previous-revisions</id>
-                        <phase>verify</phase>
+                        <phase>site</phase>
                         <configuration>
                             <target>
                                 <echo>=== Получаем 2 предыдущие ревизии GIT ===</echo>
@@ -273,6 +273,56 @@
                                         <include name="*.rev2.war"/>
                                     </fileset>
                                 </zip>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+
+                    <!-- Задача 11. diff-->
+                    <execution>
+                        <id>check-and-commit</id>
+                        <phase>verify</phase>
+                        <configuration>
+                            <target>
+                                <!-- 1) Проверяем, какие файлы изменены (git status или git diff) -->
+                                <exec executable="git">
+                                    <arg value="diff"/>
+                                    <arg value="--name-only"/>
+                                    <arg value="HEAD"/>
+                                    <!-- Сохраняем вывод в свойство -->
+                                    <redirector outputproperty="git.diff.files"/>
+                                </exec>
+                                <echo message="Changed files: ${git.diff.files}"/>
+
+                                <!-- 2) Если в списке нет критичных классов (из build.properties: diff.critical.classes),
+                                       то делаем commit. Иначе - пропускаем. -->
+                                <condition property="do.commit">
+                                    <not>
+                                        <contains string="${git.diff.files}" substring="org/ren1kron/FacesConfiguration.java"/>
+                                    </not>
+                                </condition>
+                                <echo message="do.commit: ${do.commit}"/>
+
+                                <if>
+                                    <equals arg1="${do.commit}" arg2="true"/>
+                                    <then>
+                                        <echo message="Commit changes..."/>
+                                        <exec executable="git">
+                                            <arg value="commit"/>
+                                            <arg value="-a"/>
+                                            <arg value="-m"/>
+                                            <arg value="Automatic commit"/>
+                                        </exec>
+                                        <!--                    <exec executable="git">-->
+                                        <!--                        <arg value="push"/>-->
+                                        <!--                    </exec>-->
+                                    </then>
+                                    <else>
+                                        <echo message="Changes affect critical classes. Commit skipped."/>
+                                    </else>
+                                </if>
                             </target>
                         </configuration>
                         <goals>
