@@ -182,14 +182,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>3.1.0</version>
-
-                <dependencies>
-                    <dependency>
-                        <groupId>ant-contrib</groupId>
-                        <artifactId>ant-contrib</artifactId>
-                        <version>1.0b3</version>
-                    </dependency>
-                </dependencies>
                 <executions>
                     <!-- Задача 6. native2ascii -->
                     <!-- работает -->
@@ -289,58 +281,58 @@
                     </execution>
 
                     <!-- Задача 11. diff-->
-                    <execution>
-                        <id>check-and-commit</id>
-                        <phase>verify</phase>
-                        <configuration>
-                            <target>
-                                <!-- Подключаем ant-contrib -->
-                                <taskdef resource="net/sf/antcontrib/antcontrib.properties"
-                                         classpathref="maven.plugin.classpath"/>
+<!--                    <execution>-->
+<!--                        <id>check-and-commit</id>-->
+<!--                        <phase>verify</phase>-->
+<!--                        <configuration>-->
+<!--                            <target>-->
+<!--                                &lt;!&ndash; Подключаем ant-contrib &ndash;&gt;-->
+<!--                                <taskdef resource="net/sf/antcontrib/antcontrib.properties"-->
+<!--                                         classpathref="maven.plugin.classpath"/>-->
 
-                                <!-- 1) Проверяем, какие файлы изменены (git status или git diff) -->
-                                <exec executable="git">
-                                    <arg value="diff"/>
-                                    <arg value="--name-only"/>
-                                    <arg value="HEAD"/>
-                                    <!-- Сохраняем вывод в свойство -->
-                                    <redirector outputproperty="git.diff.files"/>
-                                </exec>
-                                <echo message="Changed files: ${git.diff.files}"/>
+<!--                                &lt;!&ndash; 1) Проверяем, какие файлы изменены (git status или git diff) &ndash;&gt;-->
+<!--                                <exec executable="git">-->
+<!--                                    <arg value="diff"/>-->
+<!--                                    <arg value="&#45;&#45;name-only"/>-->
+<!--                                    <arg value="HEAD"/>-->
+<!--                                    &lt;!&ndash; Сохраняем вывод в свойство &ndash;&gt;-->
+<!--                                    <redirector outputproperty="git.diff.files"/>-->
+<!--                                </exec>-->
+<!--                                <echo message="Changed files: ${git.diff.files}"/>-->
 
-                                <!-- 2) Если в списке нет критичных классов (из build.properties: diff.critical.classes),
-                                       то делаем commit. Иначе - пропускаем. -->
-                                <condition property="do.commit">
-                                    <not>
-                                        <contains string="${git.diff.files}" substring="org/ren1kron/FacesConfiguration.java"/>
-                                    </not>
-                                </condition>
-                                <echo message="do.commit: ${do.commit}"/>
+<!--                                &lt;!&ndash; 2) Если в списке нет критичных классов (из build.properties: diff.critical.classes),-->
+<!--                                       то делаем commit. Иначе - пропускаем. &ndash;&gt;-->
+<!--                                <condition property="do.commit">-->
+<!--                                    <not>-->
+<!--                                        <contains string="${git.diff.files}" substring="org/ren1kron/FacesConfiguration.java"/>-->
+<!--                                    </not>-->
+<!--                                </condition>-->
+<!--                                <echo message="do.commit: ${do.commit}"/>-->
 
-                                <if>
-                                    <equals arg1="${do.commit}" arg2="true"/>
-                                    <then>
-                                        <echo message="Commit changes..."/>
-                                        <exec executable="git">
-                                            <arg value="commit"/>
-                                            <arg value="-a"/>
-                                            <arg value="-m"/>
-                                            <arg value="Automatic commit"/>
-                                        </exec>
-                                        <!--                    <exec executable="git">-->
-                                        <!--                        <arg value="push"/>-->
-                                        <!--                    </exec>-->
-                                    </then>
-                                    <else>
-                                        <echo message="Changes affect critical classes. Commit skipped."/>
-                                    </else>
-                                </if>
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
+<!--                                <if>-->
+<!--                                    <equals arg1="${do.commit}" arg2="true"/>-->
+<!--                                    <then>-->
+<!--                                        <echo message="Commit changes..."/>-->
+<!--                                        <exec executable="git">-->
+<!--                                            <arg value="commit"/>-->
+<!--                                            <arg value="-a"/>-->
+<!--                                            <arg value="-m"/>-->
+<!--                                            <arg value="Automatic commit"/>-->
+<!--                                        </exec>-->
+<!--                                        &lt;!&ndash;                    <exec executable="git">&ndash;&gt;-->
+<!--                                        &lt;!&ndash;                        <arg value="push"/>&ndash;&gt;-->
+<!--                                        &lt;!&ndash;                    </exec>&ndash;&gt;-->
+<!--                                    </then>-->
+<!--                                    <else>-->
+<!--                                        <echo message="Changes affect critical classes. Commit skipped."/>-->
+<!--                                    </else>-->
+<!--                                </if>-->
+<!--                            </target>-->
+<!--                        </configuration>-->
+<!--                        <goals>-->
+<!--                            <goal>run</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
                 </executions>
             </plugin>
 
@@ -363,13 +355,13 @@
                 </executions>
             </plugin>
 
-<!--            <plugin>-->
-<!--                <groupId>org.codehaus.mojo</groupId>-->
-<!--                <artifactId>exec-maven-plugin</artifactId>-->
-<!--                <version>3.1.0</version>-->
-<!--                &lt;!&ndash; Задача 9. music - Воспроизведение музыки после сборки &ndash;&gt;-->
-<!--                &lt;!&ndash; работает &ndash;&gt;-->
-<!--                <executions>-->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <!-- Задача 9. music - Воспроизведение музыки после сборки -->
+                    <!-- работает -->
 <!--                    <execution>-->
 <!--                        <id>play-gif-music</id>-->
 <!--                        <phase>package</phase>-->
@@ -379,12 +371,29 @@
 <!--                        <configuration>-->
 <!--                            <executable>bash</executable>-->
 <!--                            <arguments>-->
-<!--                                <argument>resources/play-music-and-gif.sh</argument>-->
+<!--                                <argument>${project.basedir}/scripts/play-music-and-gif.sh</argument>-->
 <!--                            </arguments>-->
 <!--                        </configuration>-->
 <!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
+                    <!-- Задача 11. diff-->
+                    <!-- осуществляет проверку состояния рабочей копии, и,
+                    если изменения не касаются классов, указанных в файле параметров
+                     выполняет commit в репозиторий git. -->
+                    <execution>
+                        <id>check-and-commit</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>bash</executable>
+                            <arguments>
+                                <argument>${project.basedir}/scripts/check_and_commit.sh</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 
 
 
