@@ -10,7 +10,6 @@ echo "Начинаем проверку сборки текущей ревизи
 
 while [ $attempt -le $max_attempts ]; do
     echo "Попытка $attempt: попытка собрать проект..."
-    # Выполняем сборку (в данном примере используем compile, но можно адаптировать под mvn package)
     if mvn clean compile; then
         build_success=true
         break

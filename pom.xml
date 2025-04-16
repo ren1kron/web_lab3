@@ -381,16 +381,30 @@
                     если изменения не касаются классов, указанных в файле параметров
                      выполняет commit в репозиторий git. -->
                     <!-- работает -->
+<!--                    <execution>-->
+<!--                        <id>check-and-commit</id>-->
+<!--                        <phase>verify</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>exec</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <executable>bash</executable>-->
+<!--                            <arguments>-->
+<!--                                <argument>${project.basedir}/scripts/check_and_commit.sh</argument>-->
+<!--                            </arguments>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
                     <execution>
-                        <id>check-and-commit</id>
-                        <phase>verify</phase>
+                        <id>history</id>
+                        <!-- Фазу можно выбрать, например, verify -->
+                        <phase>compile</phase>
                         <goals>
                             <goal>exec</goal>
                         </goals>
                         <configuration>
                             <executable>bash</executable>
                             <arguments>
-                                <argument>${project.basedir}/scripts/check_and_commit.sh</argument>
+                                <argument>${project.basedir}/scripts/history.sh</argument>
                             </arguments>
                         </configuration>
                     </execution>
