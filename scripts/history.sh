@@ -10,7 +10,7 @@ echo "Начинаем проверку сборки текущей ревизи
 
 while [ $attempt -le $max_attempts ]; do
     echo "Попытка $attempt: попытка собрать проект..."
-    if mvn clean compile; then
+    if ./gradlew clean compileJava; then
         build_success=true
         break
     else

@@ -1,82 +1,32 @@
-commit 9a8daa9386d6074821652b09d29b32d76d06c77d
+commit a250fc768436a99a44003bd5872b689e5d090f97
 Author: ren1kron <aleksy.pro35@gmail.com>
-Date:   Wed Apr 16 14:53:11 2025 +0300
+Date:   Thu Apr 17 16:36:56 2025 +0300
 
-    feat: add first version of history script
+    fix: desperate attempt to fix history
 
 diff --git a/pom.xml b/pom.xml
-index cde6dff..cb50244 100644
+index 60f2dd1..e565ad5 100644
 --- a/pom.xml
 +++ b/pom.xml
-@@ -375,10 +375,12 @@
- <!--                            </arguments>-->
- <!--                        </configuration>-->
- <!--                    </execution>-->
-+
-                     <!-- Задача 11. diff-->
-                     <!-- осуществляет проверку состояния рабочей копии, и,
-                     если изменения не касаются классов, указанных в файле параметров
-                      выполняет commit в репозиторий git. -->
-+                    <!-- работает -->
+@@ -397,7 +397,7 @@
                      <execution>
-                         <id>check-and-commit</id>
-                         <phase>verify</phase>
+                         <id>history</id>
+                         <!-- Фазу можно выбрать, например, verify -->
+-                        <phase>compile</phase>
++                        <phase>validate</phase>
+                         <goals>
+                             <goal>exec</goal>
+                         </goals>
 diff --git a/scripts/history.sh b/scripts/history.sh
-new file mode 100644
-index 0000000..e2a8991
---- /dev/null
+index d228ff1..fef23eb 100755
+--- a/scripts/history.sh
 +++ b/scripts/history.sh
-@@ -0,0 +1,37 @@
-+#!/bin/bash
-+# Скрипт history: откатываемся назад до тех пор, пока сборка не пройдет, либо не исчерпаем 10 попыток.
-+# Если сборка проходит, формируется файл с диффом между последней рабочей ревизией и предыдущей.
-+
-+max_attempts=10
-+attempt=1
-+build_success=false
-+
-+echo "Начинаем проверку сборки текущей ревизии..."
-+
-+while [ $attempt -le $max_attempts ]; do
-+    echo "Попытка $attempt: попытка собрать проект..."
-+    # Выполняем сборку (в данном примере используем compile, но можно адаптировать под mvn package)
-+    if mvn clean compile; then
-+        build_success=true
-+        break
-+    else
-+        echo "Сборка не удалась. Откатываемся на один коммит..."
-+        git reset HEAD~1 --hard
-+    fi
-+    attempt=$((attempt + 1))
-+done
-+
-+if [ "$build_success" = true ]; then
-+    echo "Сборка прошла успешно на попытке $attempt."
-+    current_sha=$(git rev-parse HEAD)
-+    echo "Текущая ревизия: $current_sha"
-+    # Проверяем, существует ли предыдущая ревизия для формирования диффа.
-+    if git rev-parse "${current_sha}~1" >/dev/null 2>&1; then
-+        git show "${current_sha}~1..${current_sha}" > history_diff.txt
-+        echo "Файл с diff создан: history_diff.txt"
-+    else
-+        echo "Предыдущая ревизия не найдена, невозможно сформировать diff."
-+    fi
-+else
-+    echo "Сборка не удалась после $max_attempts попыток, рабочая ревизия не найдена."
-+fi
-diff --git a/scripts/play-music-and-gif.sh b/scripts/play-music-and-gif.sh
-index 7ca3fa3..4c12920 100755
---- a/scripts/play-music-and-gif.sh
-+++ b/scripts/play-music-and-gif.sh
-@@ -1,4 +1,10 @@
- #!/bin/bash
+@@ -10,7 +10,7 @@ echo "Начинаем проверку сборки текущей ревизи
  
--chafa --animate=on resources/output2.gif &
-+
-+#ASCII art
-+#chafa  -f symbols --symbols ascii -c none --stretch resources/output2.gif &
-+#afplay resources/musicfile.mp3
-+
-+# no stretch + speed up
-+chafa --animate=on --optimize=9 --clear --align mid,mid -d 5 --speed=1.09 resources/output2.gif &
- afplay resources/musicfile.mp3
+ while [ $attempt -le $max_attempts ]; do
+     echo "Попытка $attempt: попытка собрать проект..."
+-    if mvn clean compile; then
++    if ./gradlew clean compileJava; then
+         build_success=true
+         break
+     else

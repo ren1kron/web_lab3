@@ -397,7 +397,8 @@
                     <execution>
                         <id>history</id>
                         <!-- Фазу можно выбрать, например, verify -->
-                        <phase>compile</phase>
+                        <!-- РАБОТАЕТ!!! -->
+                        <phase>validate</phase>
                         <goals>
                             <goal>exec</goal>
                         </goals>
