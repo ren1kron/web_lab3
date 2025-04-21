@@ -16,10 +16,15 @@
         <config.file>config.properties</config.file>
 
         <lab3.version>${project.version}</lab3.version>
+        <compile.version>17</compile.version>
 
         <!-- Для javadoc, чтобы включать doc в jar и т.д. -->
         <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- для alt -->
+        <replace.regex.oldName>org\.ren1kron</replace.regex.oldName>
+        <replace.regex.newName>org.Kostya666</replace.regex.newName>
     </properties>
 
     <dependencies>
@@ -279,6 +284,50 @@
                             <goal>run</goal>
                         </goals>
                     </execution>
+
+                    <!-- Задача 13. alt-->
+                    <!-- создаёт альтернативную версию программы с измененными именами переменных и классов
+                    и упаковывает её в war-архив. Для создания war-архива использует цель package. -->
+                    <execution>
+                        <id>alt</id>
+                        <configuration>
+                            <target>
+                                <!-- Копируем исходники -->
+                                <mkdir dir="${project.build.directory}/alt-src"/>
+                                <copy todir="${project.build.directory}/alt-src">
+                                    <fileset dir="src/main/java"/>
+                                </copy>
+                                <!-- Замена имён в коде -->
+                                <replaceregexp flags="g" byline="true"
+                                               match="${replace.regex.oldName}"
+                                               replace="${replace.regex.newName}">
+                                    <fileset dir="${project.build.directory}/alt-src">
+                                        <include name="**/*.java"/>
+                                    </fileset>
+                                </replaceregexp>
+                                <!-- Компиляция альтернативной версии -->
+                                <mkdir dir="${project.build.directory}/alt-classes"/>
+                                <javac srcdir="${project.build.directory}/alt-src"
+                                       destdir="${project.build.directory}/alt-classes"
+                                       includeantruntime="false"
+                                       source="${compile.version}"
+                                       target="${compile.version}">
+                                    <classpath>
+                                        <path refid="maven.dependency.classpath"/>
+                                    </classpath>
+                                </javac>
+                                <!-- Упаковка alt-версии в WAR -->
+                                <war destfile="${project.build.directory}/${project.build.finalName}-alt.war"
+                                     webxml="src/main/webapp/WEB-INF/web.xml">
+                                    <classes dir="${project.build.directory}/alt-classes"/>
+                                    <fileset dir="src/main/webapp"/>
+                                </war>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
                 </executions>
             </plugin>
 
@@ -355,9 +404,21 @@
 <!--                            </arguments>-->
 <!--                        </configuration>-->
 <!--                    </execution>-->
+
+
+
+
+                    <!-- Задача 14. report-->
+                    <!-- в случае успешного прохождения тестов сохраняет отчет junit в формате xml,
+                    добавляет его в репозиторий svn и выполняет commit. -->
+
+                    <!-- Задача 15. env-->
+                    <!-- осуществляет сборку и запуск программы в альтернативных окружениях;
+                    окружение задается версией java и набором аргументов виртуальной машины в файле параметров. -->
+
+
                 </executions>
             </plugin>
-
 
 
         </plugins>
