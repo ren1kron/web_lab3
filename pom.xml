@@ -25,6 +25,11 @@
         <!-- для alt -->
         <replace.regex.oldName>org\.ren1kron</replace.regex.oldName>
         <replace.regex.newName>org.Kostya666</replace.regex.newName>
+
+        <!-- для env -->
+        <env.java.version>17</env.java.version>
+        <env.vm.args>-Xmx512m</env.vm.args>
+        <tomcat.port>8080</tomcat.port>
     </properties>
 
     <dependencies>
@@ -35,6 +40,33 @@
             <version>10.0.0</version>
             <scope>provided</scope>
         </dependency>
+
+        <!-- Servlet API for compilation -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>5.0.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>jakarta.faces</artifactId>
+            <version>4.0.2</version>
+        </dependency>
+
+        <!-- Зависимость с реализацией Cargo для Tomcat 10 (включает код интеграции контейнера) -->
+        <dependency>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-core-uberjar</artifactId>
+            <version>1.10.19</version>
+        </dependency>
+        <!-- Библиотека Apache Commons Daemon, необходимая для запуска Tomcat 10 внутри Maven -->
+        <dependency>
+            <groupId>commons-daemon</groupId>
+            <artifactId>commons-daemon</artifactId>
+            <version>1.2.4</version>  <!-- Версия, совместимая с Tomcat 10 (Apache Commons Daemon) -->
+        </dependency>
+
 
         <!-- PrimeFaces -->
         <dependency>
@@ -334,7 +366,6 @@
                     добавляет его в репозиторий git и выполняет commit. -->
                     <execution>
                         <id>report</id>
-<!--                        <phase>verify</phase>-->
                         <configuration>
                             <target name="commit-junit-report">
                                 <echo message="Adding JUnit report to git repository"/>
@@ -428,21 +459,67 @@
 <!--                            </arguments>-->
 <!--                        </configuration>-->
 <!--                    </execution>-->
-
-
-
-
-
-
-                    <!-- Задача 15. env-->
-                    <!-- осуществляет сборку и запуск программы в альтернативных окружениях;
-                    окружение задается версией java и набором аргументов виртуальной машины в файле параметров. -->
-
-
                 </executions>
             </plugin>
 
-
+            <!-- Задача 15. env-->
+            <!-- осуществляет сборку и запуск программы в альтернативных окружениях;
+            окружение задается версией java и набором аргументов виртуальной машины в файле параметров. -->
+            <plugin>
+                <groupId>org.codehaus.cargo</groupId>
+                <artifactId>cargo-maven3-plugin</artifactId>
+                <version>1.10.19</version>
+                <configuration>
+<!--                    <daemon>true</daemon>-->
+                    <container>
+                        <containerId>tomcat10x</containerId>
+                        <type>embedded</type>
+                        <artifactInstaller>
+                            <groupId>org.apache.tomcat</groupId>
+                            <artifactId>tomcat</artifactId>
+                            <version>10.1.23</version>              <!-- Версия Tomcat 10, которая будет использована -->
+                        </artifactInstaller>
+                    </container>
+                    <configuration>
+                        <type>standalone</type>
+                        <home>${project.build.directory}/tomcat-base</home>
+                        <properties>
+                            <cargo.servlet.port>${tomcat.port}</cargo.servlet.port>
+                        </properties>
+                    </configuration>
+<!--                    <deployer>-->
+<!--                        <type>installed</type>-->
+<!--                    </deployer>-->
+                    <!-- Описание разворачиваемого WAR -->
+                    <deployables>
+                        <deployable>
+                            <type>war</type>
+                            <file>${project.build.directory}/lab3-хуй.war</file>  <!-- Путь до WAR-файла -->
+                            <properties>
+                                <context>/lab3</context>             <!-- Контекстное имя приложения (если не указать, используется имя WAR) -->
+                                <!-- <version>j2ee</version> -->      <!-- (опционально) если WAR старого формата на Java EE,
+                                                        Cargo/Tomcat 10 попытается автоматически мигрировать его на Jakarta EE&#8203;:contentReference[oaicite:2]{index=2} -->
+                            </properties>
+                        </deployable>
+                    </deployables>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>env</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>stop-env</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
