@@ -322,14 +322,16 @@
                     и упаковывает её в war-архив. Для создания war-архива использует цель package. -->
                     <execution>
                         <id>alt</id>
+                        <phase>verify</phase>
                         <configuration>
                             <target>
-                                <!-- Копируем исходники -->
+                                <!-- 1) Копируем исходники -->
                                 <mkdir dir="${project.build.directory}/alt-src"/>
                                 <copy todir="${project.build.directory}/alt-src">
                                     <fileset dir="src/main/java"/>
                                 </copy>
-                                <!-- Замена имён в коде -->
+
+                                <!-- 2) Замена имён в скопированных файлах -->
                                 <replaceregexp flags="g" byline="true"
                                                match="${replace.regex.oldName}"
                                                replace="${replace.regex.newName}">
@@ -337,18 +339,26 @@
                                         <include name="**/*.java"/>
                                     </fileset>
                                 </replaceregexp>
-                                <!-- Компиляция альтернативной версии -->
+
+                                <!-- 3) Определяем classpath из Maven‑зависимостей -->
+                                <path id="alt.classpath">
+                                    <path refid="maven.dependency.classpath"/>
+                                </path>
+
+                                <!-- 4) Компиляция альтернативной версии -->
                                 <mkdir dir="${project.build.directory}/alt-classes"/>
                                 <javac srcdir="${project.build.directory}/alt-src"
                                        destdir="${project.build.directory}/alt-classes"
                                        includeantruntime="false"
-                                       source="${compile.version}"
-                                       target="${compile.version}">
-                                    <classpath>
-                                        <path refid="maven.dependency.classpath"/>
-                                    </classpath>
+                                       source="17"
+                                       target="17"
+                                       classpathref="alt.classpath">
+                                    <!-- Lombok-аннотации -->
+                                    <compilerarg value="-processor"/>
+                                    <compilerarg value="lombok.launch.AnnotationProcessorHider$AnnotationProcessor"/>
                                 </javac>
-                                <!-- Упаковка alt-версии в WAR -->
+
+                                <!-- 5) Пакуем alt‑WAR -->
                                 <war destfile="${project.build.directory}/${project.build.finalName}-alt.war"
                                      webxml="src/main/webapp/WEB-INF/web.xml">
                                     <classes dir="${project.build.directory}/alt-classes"/>
@@ -366,6 +376,7 @@
                     добавляет его в репозиторий git и выполняет commit. -->
                     <execution>
                         <id>report</id>
+                        <phase>test</phase>
                         <configuration>
                             <target name="commit-junit-report">
                                 <echo message="Adding JUnit report to git repository"/>
@@ -384,6 +395,14 @@
                         <goals><goal>run</goal></goals>
                     </execution>
                 </executions>
+                <!-- Чтобы maven.dependency.classpath был доступен -->
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven</groupId>
+                        <artifactId>maven-artifact</artifactId>
+                        <version>3.9.0</version>
+                    </dependency>
+                </dependencies>
             </plugin>
 
 
@@ -431,95 +450,95 @@
                     если изменения не касаются классов, указанных в файле параметров
                      выполняет commit в репозиторий git. -->
                     <!-- работает -->
-<!--                    <execution>-->
-<!--                        <id>check-and-commit</id>-->
-<!--                        <phase>verify</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>exec</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <executable>bash</executable>-->
-<!--                            <arguments>-->
-<!--                                <argument>${project.basedir}/scripts/check_and_commit.sh</argument>-->
-<!--                            </arguments>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
-<!--                    <execution>-->
-<!--                        <id>history</id>-->
-<!--                        &lt;!&ndash; Фазу можно выбрать, например, verify &ndash;&gt;-->
-<!--                        &lt;!&ndash; РАБОТАЕТ!!! &ndash;&gt;-->
-<!--                        <phase>validate</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>exec</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <executable>bash</executable>-->
-<!--                            <arguments>-->
-<!--                                <argument>${project.basedir}/scripts/history.sh</argument>-->
-<!--                            </arguments>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
+                    <execution>
+                        <id>check-and-commit</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>bash</executable>
+                            <arguments>
+                                <argument>${project.basedir}/scripts/check_and_commit.sh</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>history</id>
+                        <!-- Фазу можно выбрать, например, verify -->
+                        <!-- РАБОТАЕТ!!! -->
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>bash</executable>
+                            <arguments>
+                                <argument>${project.basedir}/scripts/history.sh</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
 
             <!-- Задача 15. env-->
             <!-- осуществляет сборку и запуск программы в альтернативных окружениях;
             окружение задается версией java и набором аргументов виртуальной машины в файле параметров. -->
-            <plugin>
-                <groupId>org.codehaus.cargo</groupId>
-                <artifactId>cargo-maven3-plugin</artifactId>
-                <version>1.10.19</version>
-                <configuration>
-<!--                    <daemon>true</daemon>-->
-                    <container>
-                        <containerId>tomcat10x</containerId>
-                        <type>embedded</type>
-                        <artifactInstaller>
-                            <groupId>org.apache.tomcat</groupId>
-                            <artifactId>tomcat</artifactId>
-                            <version>10.1.23</version>              <!-- Версия Tomcat 10, которая будет использована -->
-                        </artifactInstaller>
-                    </container>
-                    <configuration>
-                        <type>standalone</type>
-                        <home>${project.build.directory}/tomcat-base</home>
-                        <properties>
-                            <cargo.servlet.port>${tomcat.port}</cargo.servlet.port>
-                        </properties>
-                    </configuration>
-<!--                    <deployer>-->
-<!--                        <type>installed</type>-->
-<!--                    </deployer>-->
-                    <!-- Описание разворачиваемого WAR -->
-                    <deployables>
-                        <deployable>
-                            <type>war</type>
-                            <file>${project.build.directory}/lab3-хуй.war</file>  <!-- Путь до WAR-файла -->
-                            <properties>
-                                <context>/lab3</context>             <!-- Контекстное имя приложения (если не указать, используется имя WAR) -->
-                                <!-- <version>j2ee</version> -->      <!-- (опционально) если WAR старого формата на Java EE,
-                                                        Cargo/Tomcat 10 попытается автоматически мигрировать его на Jakarta EE&#8203;:contentReference[oaicite:2]{index=2} -->
-                            </properties>
-                        </deployable>
-                    </deployables>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>env</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>start</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>stop-env</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>stop</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.codehaus.cargo</groupId>-->
+<!--                <artifactId>cargo-maven3-plugin</artifactId>-->
+<!--                <version>1.10.19</version>-->
+<!--                <configuration>-->
+<!--&lt;!&ndash;                    <daemon>true</daemon>&ndash;&gt;-->
+<!--                    <container>-->
+<!--                        <containerId>tomcat10x</containerId>-->
+<!--                        <type>embedded</type>-->
+<!--                        <artifactInstaller>-->
+<!--                            <groupId>org.apache.tomcat</groupId>-->
+<!--                            <artifactId>tomcat</artifactId>-->
+<!--                            <version>10.1.23</version>              &lt;!&ndash; Версия Tomcat 10, которая будет использована &ndash;&gt;-->
+<!--                        </artifactInstaller>-->
+<!--                    </container>-->
+<!--                    <configuration>-->
+<!--                        <type>standalone</type>-->
+<!--                        <home>${project.build.directory}/tomcat-base</home>-->
+<!--                        <properties>-->
+<!--                            <cargo.servlet.port>${tomcat.port}</cargo.servlet.port>-->
+<!--                        </properties>-->
+<!--                    </configuration>-->
+<!--&lt;!&ndash;                    <deployer>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <type>installed</type>&ndash;&gt;-->
+<!--&lt;!&ndash;                    </deployer>&ndash;&gt;-->
+<!--                    &lt;!&ndash; Описание разворачиваемого WAR &ndash;&gt;-->
+<!--                    <deployables>-->
+<!--                        <deployable>-->
+<!--                            <type>war</type>-->
+<!--                            <file>${project.build.directory}/lab3-хуй.war</file>  &lt;!&ndash; Путь до WAR-файла &ndash;&gt;-->
+<!--                            <properties>-->
+<!--                                <context>/lab3</context>             &lt;!&ndash; Контекстное имя приложения (если не указать, используется имя WAR) &ndash;&gt;-->
+<!--                                &lt;!&ndash; <version>j2ee</version> &ndash;&gt;      &lt;!&ndash; (опционально) если WAR старого формата на Java EE,-->
+<!--                                                        Cargo/Tomcat 10 попытается автоматически мигрировать его на Jakarta EE&#8203;:contentReference[oaicite:2]{index=2} &ndash;&gt;-->
+<!--                            </properties>-->
+<!--                        </deployable>-->
+<!--                    </deployables>-->
+<!--                </configuration>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>env</id>-->
+<!--                        <phase>pre-integration-test</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>start</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                    <execution>-->
+<!--                        <id>stop-env</id>-->
+<!--                        <phase>post-integration-test</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>stop</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
         </plugins>
     </build>
 
