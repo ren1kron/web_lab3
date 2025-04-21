@@ -279,60 +279,6 @@
                             <goal>run</goal>
                         </goals>
                     </execution>
-
-                    <!-- Задача 11. diff-->
-<!--                    <execution>-->
-<!--                        <id>check-and-commit</id>-->
-<!--                        <phase>verify</phase>-->
-<!--                        <configuration>-->
-<!--                            <target>-->
-<!--                                &lt;!&ndash; Подключаем ant-contrib &ndash;&gt;-->
-<!--                                <taskdef resource="net/sf/antcontrib/antcontrib.properties"-->
-<!--                                         classpathref="maven.plugin.classpath"/>-->
-
-<!--                                &lt;!&ndash; 1) Проверяем, какие файлы изменены (git status или git diff) &ndash;&gt;-->
-<!--                                <exec executable="git">-->
-<!--                                    <arg value="diff"/>-->
-<!--                                    <arg value="&#45;&#45;name-only"/>-->
-<!--                                    <arg value="HEAD"/>-->
-<!--                                    &lt;!&ndash; Сохраняем вывод в свойство &ndash;&gt;-->
-<!--                                    <redirector outputproperty="git.diff.files"/>-->
-<!--                                </exec>-->
-<!--                                <echo message="Changed files: ${git.diff.files}"/>-->
-
-<!--                                &lt;!&ndash; 2) Если в списке нет критичных классов (из build.properties: diff.critical.classes),-->
-<!--                                       то делаем commit. Иначе - пропускаем. &ndash;&gt;-->
-<!--                                <condition property="do.commit">-->
-<!--                                    <not>-->
-<!--                                        <contains string="${git.diff.files}" substring="org/ren1kron/FacesConfiguration.java"/>-->
-<!--                                    </not>-->
-<!--                                </condition>-->
-<!--                                <echo message="do.commit: ${do.commit}"/>-->
-
-<!--                                <if>-->
-<!--                                    <equals arg1="${do.commit}" arg2="true"/>-->
-<!--                                    <then>-->
-<!--                                        <echo message="Commit changes..."/>-->
-<!--                                        <exec executable="git">-->
-<!--                                            <arg value="commit"/>-->
-<!--                                            <arg value="-a"/>-->
-<!--                                            <arg value="-m"/>-->
-<!--                                            <arg value="Automatic commit"/>-->
-<!--                                        </exec>-->
-<!--                                        &lt;!&ndash;                    <exec executable="git">&ndash;&gt;-->
-<!--                                        &lt;!&ndash;                        <arg value="push"/>&ndash;&gt;-->
-<!--                                        &lt;!&ndash;                    </exec>&ndash;&gt;-->
-<!--                                    </then>-->
-<!--                                    <else>-->
-<!--                                        <echo message="Changes affect critical classes. Commit skipped."/>-->
-<!--                                    </else>-->
-<!--                                </if>-->
-<!--                            </target>-->
-<!--                        </configuration>-->
-<!--                        <goals>-->
-<!--                            <goal>run</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
                 </executions>
             </plugin>
 
@@ -394,143 +340,26 @@
 <!--                            </arguments>-->
 <!--                        </configuration>-->
 <!--                    </execution>-->
-                    <execution>
-                        <id>history</id>
-                        <!-- Фазу можно выбрать, например, verify -->
-                        <!-- РАБОТАЕТ!!! -->
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>bash</executable>
-                            <arguments>
-                                <argument>${project.basedir}/scripts/history.sh</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
+<!--                    <execution>-->
+<!--                        <id>history</id>-->
+<!--                        &lt;!&ndash; Фазу можно выбрать, например, verify &ndash;&gt;-->
+<!--                        &lt;!&ndash; РАБОТАЕТ!!! &ndash;&gt;-->
+<!--                        <phase>validate</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>exec</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <executable>bash</executable>-->
+<!--                            <arguments>-->
+<!--                                <argument>${project.basedir}/scripts/history.sh</argument>-->
+<!--                            </arguments>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
                 </executions>
             </plugin>
 
 
 
-
-
-
-
-            <!-- (Задача 11) Проверка изменений в рабочей копии, если они не касаются заданных
-                 классов - commit. Аналогично, либо maven-scm-plugin, либо скрипты через antrun/exec.
-            -->
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.scm</groupId>-->
-<!--                <artifactId>maven-scm-plugin</artifactId>-->
-<!--                <version>1.11.3</version>-->
-<!--                &lt;!&ndash; Настройка SCM, если используем git. Либо опять же через exec. &ndash;&gt;-->
-<!--            </plugin>-->
-
-            <!-- (Задача 12) Если проект не компилируется (compile) - откат на предыдущую версию,
-                 пока не найдём рабочую. Если нет - формируем diff. Снова скрипты,
-                 содержащие логику по git checkout, mvn compile, git diff...
-            -->
-            <!-- (Задача 13) Создание альтернативной версии с переименованием классов и переменных.
-                 Обычно требует либо написания отдельного тулзинга (где-то в Java/ASM/JDT),
-                 либо утилит, вызываемых через exec/antrun.
-            -->
-            <!-- (Задача 14) Если тесты прошли, сохранить отчёт junit (Surefire уже пишет в target/surefire-reports),
-                 закоммитить в git.
-            -->
-            <!-- (Задача 15) Сборка и запуск в альтернативных окружениях (разных версиях Java и аргументах).
-                 Можно использовать Maven Toolchains Plugin, либо несколько профилей с разными настройками
-                 compiler, либо опять же exec.
-            -->
-
-
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-antrun-plugin</artifactId>-->
-<!--                <version>3.1.0</version>-->
-<!--                <executions>-->
-
-<!--                    &lt;!&ndash; (Задача 4) "Сначала package, потом test" &ndash;&gt;-->
-<!--                    <execution>-->
-<!--                        <id>custom-test-after-package</id>-->
-<!--                        &lt;!&ndash; Запустим на фазе verify &ndash;&gt;-->
-<!--                        <phase>verify</phase>-->
-<!--                        <configuration>-->
-<!--                            <target>-->
-<!--                                <echo>=== Выполняем: mvn package ===</echo>-->
-<!--                                <exec executable="mvn">-->
-<!--                                    <arg value="package"/>-->
-<!--                                </exec>-->
-<!--                                <echo>=== Выполняем: mvn test ===</echo>-->
-<!--                                <exec executable="mvn">-->
-<!--                                    <arg value="test"/>-->
-<!--                                </exec>-->
-<!--                            </target>-->
-<!--                        </configuration>-->
-<!--                        <goals>-->
-<!--                            &lt;!&ndash; Вместо <goal>execute</goal> указываем <goal>run</goal> &ndash;&gt;-->
-<!--                            <goal>run</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-
-<!--                    &lt;!&ndash; (Задача 6) Преобразование native2ascii &ndash;&gt;-->
-<!--&lt;!&ndash;                    <execution>&ndash;&gt;-->
-<!--&lt;!&ndash;                        <id>native2ascii-files</id>&ndash;&gt;-->
-<!--&lt;!&ndash;                        <phase>process-resources</phase>&ndash;&gt;-->
-<!--&lt;!&ndash;                        <configuration>&ndash;&gt;-->
-<!--&lt;!&ndash;                            <target>&ndash;&gt;-->
-<!--&lt;!&ndash;                                <echo>=== Выполняем native2ascii для локализационных файлов ===</echo>&ndash;&gt;-->
-<!--&lt;!&ndash;                                <mkdir dir="${project.build.directory}/native2ascii"/>&ndash;&gt;-->
-<!--&lt;!&ndash;                                <native2ascii&ndash;&gt;-->
-<!--&lt;!&ndash;                                        srcDir="${project.basedir}/src/main/resources/i18n"&ndash;&gt;-->
-<!--&lt;!&ndash;                                        destDir="${project.build.directory}/native2ascii"&ndash;&gt;-->
-<!--&lt;!&ndash;                                        includes="**/*.properties"&ndash;&gt;-->
-<!--&lt;!&ndash;                                        ext="properties"&ndash;&gt;-->
-<!--&lt;!&ndash;                                        encoding="UTF-8"/>&ndash;&gt;-->
-<!--&lt;!&ndash;                            </target>&ndash;&gt;-->
-<!--&lt;!&ndash;                        </configuration>&ndash;&gt;-->
-<!--&lt;!&ndash;                        <goals>&ndash;&gt;-->
-<!--&lt;!&ndash;                            <goal>run</goal>&ndash;&gt;-->
-<!--&lt;!&ndash;                        </goals>&ndash;&gt;-->
-<!--&lt;!&ndash;                    </execution>&ndash;&gt;-->
-
-<!--                    &lt;!&ndash; (Задача 8) Валидация XML &ndash;&gt;-->
-<!--                    <execution>-->
-<!--                        <id>validate-xml</id>-->
-<!--                        <phase>verify</phase>-->
-<!--                        <configuration>-->
-<!--                            <target>-->
-<!--                                <echo>=== Валидация XML ===</echo>-->
-<!--                                <xmlvalidate lenient="false">-->
-<!--                                    <fileset dir="${project.basedir}/src/main/resources"-->
-<!--                                             includes="**/*.xml"/>-->
-<!--                                </xmlvalidate>-->
-<!--                            </target>-->
-<!--                        </configuration>-->
-<!--                        <goals>-->
-<!--                            <goal>run</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-
-<!--                    &lt;!&ndash; (Задача 10) Сборка двух предыдущих ревизий git &ndash;&gt;-->
-<!--                    <execution>-->
-<!--                        <id>build-previous-revs</id>-->
-<!--                        <phase>verify</phase>-->
-<!--                        <configuration>-->
-<!--                            <target>-->
-<!--                                <echo>=== Получаем 2 предыдущие ревизии GIT ===</echo>-->
-<!--                                &lt;!&ndash; Здесь блоки <exec> для git checkout HEAD~1, mvn package и т.д. &ndash;&gt;-->
-<!--                            </target>-->
-<!--                        </configuration>-->
-<!--                        <goals>-->
-<!--                            <goal>run</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-
-<!--                    &lt;!&ndash; И т.д. при необходимости можно добавить новые executions &ndash;&gt;-->
-<!--                </executions>-->
-<!--            </plugin>-->
         </plugins>
     </build>
 
@@ -550,10 +379,4 @@
 <!--        </profile>-->
 <!--    </profiles>-->
 
-<!--    <distributionManagement>-->
-<!--        <repository>-->
-<!--            <id>helios</id>-->
-<!--            <url>scp://s409411@helios.se.ifmo.ru:/home/studs/s409411/zalupa</url>-->
-<!--        </repository>-->
-<!--    </distributionManagement>-->
 </project>
