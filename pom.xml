@@ -23,7 +23,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- для alt -->
-        <replace.regex.oldName>org\.ren1kron</replace.regex.oldName>
+        <replace.regex.oldName>org.ren1kron</replace.regex.oldName>
         <replace.regex.newName>org.Kostya666</replace.regex.newName>
 
         <!-- для env -->
@@ -241,13 +241,14 @@
                         </goals>
                     </execution>
 
-                    <!-- Задача 8. native2ascii -->
+                    <!-- Задача 8. xml -->
                     <!-- работает -->
                     <execution>
                         <id>validate-xml</id>
                         <phase>validate</phase>
                         <configuration>
                             <target>
+                                <echo>gav gav</echo>
                                 <xmlvalidate>
                                     <fileset dir="${project.basedir}/src/main/resources">
                                         <include name="**/*.xml"/>
@@ -394,6 +395,36 @@
                         </configuration>
                         <goals><goal>run</goal></goals>
                     </execution>
+                    <!-- ========== 15. env (копирование в TomEE + запуск) ========== -->
+                    <execution>
+                        <id>env</id>
+                        <!-- сработает сразу после package -->
+<!--                        <phase>pre-integration-test</phase>-->
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+
+                        <configuration>
+                            <target name="env">
+                                <echo message="***** ENV: deploy to TomEE *****"/>
+
+                                <!-- 1) Копируем WAR -->
+                                <!-- overwrite="true" перезапишет старую версию, если она есть -->
+                                <copy file="${project.build.directory}/${project.build.finalName}.war"
+                                      todir="/opt/tomee/webapps"
+                                      overwrite="true"/>
+
+                                <!-- 3) Стартуем TomEE -->
+                                <!--  run  — в переднем плане; Maven заблокируется, пока TomEE работает.
+                                     Если нужно в фоне — замени  run  на  start  ИЛИ добавь spawn="true". -->
+                                <exec executable="/opt/tomee/bin/catalina.sh" dir="/opt/tomee/bin">
+                                    <arg value="run"/>
+                                </exec>
+
+                                <echo message="***** ENV started (TomEE is running) *****"/>
+                            </target>
+                        </configuration>
+                    </execution>
                 </executions>
                 <!-- Чтобы maven.dependency.classpath был доступен -->
                 <dependencies>
@@ -431,19 +462,19 @@
                 <executions>
                     <!-- Задача 9. music - Воспроизведение музыки после сборки -->
                     <!-- работает -->
-<!--                    <execution>-->
-<!--                        <id>play-gif-music</id>-->
-<!--                        <phase>package</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>exec</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <executable>bash</executable>-->
-<!--                            <arguments>-->
-<!--                                <argument>${project.basedir}/scripts/play-music-and-gif.sh</argument>-->
-<!--                            </arguments>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
+                    <execution>
+                        <id>play-gif-music</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>bash</executable>
+                            <arguments>
+                                <argument>${project.basedir}/scripts/play-music-and-gif.sh</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
 
                     <!-- Задача 11. diff-->
                     <!-- осуществляет проверку состояния рабочей копии, и,
@@ -541,5 +572,7 @@
 <!--            </plugin>-->
         </plugins>
     </build>
+
+
 
 </project>

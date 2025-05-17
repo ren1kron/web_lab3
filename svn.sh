@@ -7,4 +7,3 @@ svn mkdir -m "Создание структуры проекта" "$REPO_URL/tru
 
 # Чекаут рабочей копии из trunk (branch1)
 svn checkout "$REPO_URL/trunk" wc
-cd wc
